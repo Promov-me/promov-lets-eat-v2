@@ -1,1 +1,5 @@
+
 project_id = "uoovrxfpjsyvpkqdxkoa"
+
+[functions.gerar-numeros]
+verify_jwt = false
