@@ -1,14 +1,11 @@
-
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ConfiguracaoCampanha from "@/components/ConfiguracaoCampanha";
 import Dashboard from "@/components/Dashboard";
-
 const Index = () => {
-  return (
-    <div className="container mx-auto p-6">
+  return <div className="container mx-auto p-6">
       <div className="flex justify-center mb-8">
-        <img src="/logo.png" alt="Logo" className="h-24" />
+        <img alt="Logo" className="h-24" src="/lovable-uploads/264c2e58-5519-4fec-8e18-8121764d8758.png" />
       </div>
       
       <Card className="p-6">
@@ -27,8 +24,6 @@ const Index = () => {
           </TabsContent>
         </Tabs>
       </Card>
-    </div>
-  );
+    </div>;
 };
-
 export default Index;
