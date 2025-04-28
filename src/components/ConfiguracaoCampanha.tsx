@@ -43,6 +43,14 @@ const ConfiguracaoCampanha = () => {
         description: "O número de séries foi atualizado com sucesso."
       });
       refetchConfig();
+    },
+    onError: (error) => {
+      toast({
+        title: "Erro",
+        description: "Não foi possível atualizar a configuração.",
+        variant: "destructive"
+      });
+      console.error("Erro ao atualizar séries:", error);
     }
   });
 
@@ -54,7 +62,11 @@ const ConfiguracaoCampanha = () => {
         body: JSON.stringify({ documento, quantidade: parseInt(quantidade) })
       });
       
-      if (!response.ok) throw new Error("Erro ao gerar números");
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Erro ao gerar números");
+      }
+      
       return response.json();
     },
     onSuccess: (data) => {
@@ -64,6 +76,14 @@ const ConfiguracaoCampanha = () => {
       });
       setDocumento("");
       setQuantidade("");
+    },
+    onError: (error) => {
+      toast({
+        title: "Erro",
+        description: error instanceof Error ? error.message : "Erro ao gerar números",
+        variant: "destructive"
+      });
+      console.error("Erro ao gerar números:", error);
     }
   });
 
@@ -95,14 +115,17 @@ const ConfiguracaoCampanha = () => {
               type="number"
               min="1"
               value={seriesNumericas}
-              onChange={(e) => setSeriesNumericas(parseInt(e.target.value))}
+              onChange={(e) => setSeriesNumericas(parseInt(e.target.value) || 1)}
             />
             <p className="text-sm text-gray-500">
               Intervalo atual: 0 a {(seriesNumericas * 100000) - 1}
             </p>
           </div>
-          <Button onClick={handleUpdateSeries}>
-            Atualizar Configuração
+          <Button 
+            onClick={handleUpdateSeries}
+            disabled={updateSeriesMutation.isPending}
+          >
+            {updateSeriesMutation.isPending ? "Atualizando..." : "Atualizar Configuração"}
           </Button>
         </div>
       </Card>
@@ -128,8 +151,11 @@ const ConfiguracaoCampanha = () => {
               placeholder="Digite a quantidade de números"
             />
           </div>
-          <Button type="submit">
-            Gerar Números
+          <Button 
+            type="submit"
+            disabled={gerarNumerosMutation.isPending}
+          >
+            {gerarNumerosMutation.isPending ? "Gerando..." : "Gerar Números"}
           </Button>
         </form>
       </Card>

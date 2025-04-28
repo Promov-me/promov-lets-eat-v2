@@ -12,7 +12,13 @@ export default async function handler(req: Request) {
 
     // Validar entrada
     if (!documento || !quantidade || quantidade < 1) {
-      return new Response('Dados inválidos', { status: 400 });
+      return new Response(JSON.stringify({ 
+        success: false, 
+        error: 'Dados inválidos' 
+      }), { 
+        status: 400,
+        headers: { 'Content-Type': 'application/json' }
+      });
     }
 
     // Buscar configuração atual
@@ -47,6 +53,13 @@ export default async function handler(req: Request) {
 
     if (insertError) throw insertError;
 
+    // Verificar se o participante já existe e inseri-lo se não existir
+    const { error: participanteError } = await supabase
+      .from('participantes')
+      .upsert({ documento }, { onConflict: 'documento' });
+
+    if (participanteError) throw participanteError;
+
     return new Response(JSON.stringify({ 
       success: true, 
       numeros: novosNumeros 
@@ -58,7 +71,7 @@ export default async function handler(req: Request) {
     console.error('Erro ao gerar números:', error);
     return new Response(JSON.stringify({ 
       success: false, 
-      error: 'Erro ao gerar números' 
+      error: 'Erro ao processar a solicitação' 
     }), { 
       status: 500,
       headers: { 'Content-Type': 'application/json' }
