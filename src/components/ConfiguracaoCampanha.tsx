@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { generateUniqueRandomNumbers } from "@/lib/utils/generateNumbers";
 
 const ConfiguracaoCampanha = () => {
   const { toast } = useToast();
@@ -56,18 +57,50 @@ const ConfiguracaoCampanha = () => {
 
   const gerarNumerosMutation = useMutation({
     mutationFn: async ({ documento, quantidade }: { documento: string; quantidade: string }) => {
-      const response = await fetch("/api/gerar-numeros", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ documento, quantidade: parseInt(quantidade) })
-      });
+      // Buscar configuração atual
+      const { data: config, error: configError } = await supabase
+        .from("configuracao_campanha")
+        .select("series_numericas")
+        .single();
       
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Erro ao gerar números");
-      }
+      if (configError) throw configError;
       
-      return response.json();
+      const maxNumber = config.series_numericas * 100000;
+      
+      // Buscar números existentes
+      const { data: existingNumbers, error: numbersError } = await supabase
+        .from("numeros_sorte")
+        .select("numero");
+      
+      if (numbersError) throw numbersError;
+      
+      const existingSet = new Set(existingNumbers?.map(n => n.numero) || []);
+      
+      // Gerar novos números
+      const novosNumeros = generateUniqueRandomNumbers(
+        parseInt(quantidade), 
+        maxNumber, 
+        existingSet
+      );
+      
+      // Inserir números gerados
+      const { error: insertError } = await supabase
+        .from("numeros_sorte")
+        .insert(novosNumeros.map(numero => ({
+          numero,
+          documento
+        })));
+      
+      if (insertError) throw insertError;
+      
+      // Verificar se o participante já existe e inseri-lo se não existir
+      const { error: participanteError } = await supabase
+        .from("participantes")
+        .upsert({ documento }, { onConflict: 'documento' });
+      
+      if (participanteError) throw participanteError;
+      
+      return { numeros: novosNumeros };
     },
     onSuccess: (data) => {
       toast({
