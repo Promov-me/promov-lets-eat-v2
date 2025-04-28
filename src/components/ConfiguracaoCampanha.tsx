@@ -1,0 +1,140 @@
+
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { useState } from "react";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+
+const ConfiguracaoCampanha = () => {
+  const { toast } = useToast();
+  const [documento, setDocumento] = useState("");
+  const [quantidade, setQuantidade] = useState("");
+  const [seriesNumericas, setSeriesNumericas] = useState(1);
+
+  const { data: configData, refetch: refetchConfig } = useQuery({
+    queryKey: ["configuracao"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("configuracao_campanha")
+        .select("*")
+        .single();
+      
+      if (error) throw error;
+      if (data) setSeriesNumericas(data.series_numericas);
+      return data;
+    }
+  });
+
+  const updateSeriesMutation = useMutation({
+    mutationFn: async (series: number) => {
+      const { error } = await supabase
+        .from("configuracao_campanha")
+        .update({ series_numericas: series })
+        .eq("id", configData?.id);
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast({
+        title: "Configuração atualizada",
+        description: "O número de séries foi atualizado com sucesso."
+      });
+      refetchConfig();
+    }
+  });
+
+  const gerarNumerosMutation = useMutation({
+    mutationFn: async ({ documento, quantidade }: { documento: string; quantidade: string }) => {
+      const response = await fetch("/api/gerar-numeros", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ documento, quantidade: parseInt(quantidade) })
+      });
+      
+      if (!response.ok) throw new Error("Erro ao gerar números");
+      return response.json();
+    },
+    onSuccess: (data) => {
+      toast({
+        title: "Números gerados com sucesso",
+        description: `Foram gerados ${data.numeros.length} números para o documento ${documento}`
+      });
+      setDocumento("");
+      setQuantidade("");
+    }
+  });
+
+  const handleUpdateSeries = () => {
+    updateSeriesMutation.mutate(seriesNumericas);
+  };
+
+  const handleGerarNumeros = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!documento || !quantidade) {
+      toast({
+        title: "Campos obrigatórios",
+        description: "Preencha todos os campos para gerar números",
+        variant: "destructive"
+      });
+      return;
+    }
+    gerarNumerosMutation.mutate({ documento, quantidade });
+  };
+
+  return (
+    <div className="space-y-6">
+      <Card className="p-6">
+        <h3 className="text-lg font-semibold mb-4">Configuração de Séries</h3>
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <Label>Número de Séries Numéricas</Label>
+            <Input
+              type="number"
+              min="1"
+              value={seriesNumericas}
+              onChange={(e) => setSeriesNumericas(parseInt(e.target.value))}
+            />
+            <p className="text-sm text-gray-500">
+              Intervalo atual: 0 a {(seriesNumericas * 100000) - 1}
+            </p>
+          </div>
+          <Button onClick={handleUpdateSeries}>
+            Atualizar Configuração
+          </Button>
+        </div>
+      </Card>
+
+      <Card className="p-6">
+        <h3 className="text-lg font-semibold mb-4">Geração Manual de Números</h3>
+        <form onSubmit={handleGerarNumeros} className="space-y-4">
+          <div className="space-y-2">
+            <Label>CPF/CNPJ</Label>
+            <Input
+              value={documento}
+              onChange={(e) => setDocumento(e.target.value)}
+              placeholder="Digite o CPF ou CNPJ"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label>Quantidade de Números</Label>
+            <Input
+              type="number"
+              min="1"
+              value={quantidade}
+              onChange={(e) => setQuantidade(e.target.value)}
+              placeholder="Digite a quantidade de números"
+            />
+          </div>
+          <Button type="submit">
+            Gerar Números
+          </Button>
+        </form>
+      </Card>
+    </div>
+  );
+};
+
+export default ConfiguracaoCampanha;

@@ -9,6 +9,75 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      configuracao_campanha: {
+        Row: {
+          created_at: string
+          id: string
+          series_numericas: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          series_numericas?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          series_numericas?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      numeros_sorte: {
+        Row: {
+          created_at: string
+          documento: string
+          id: string
+          numero: number
+        }
+        Insert: {
+          created_at?: string
+          documento: string
+          id?: string
+          numero: number
+        }
+        Update: {
+          created_at?: string
+          documento?: string
+          id?: string
+          numero?: number
+        }
+        Relationships: []
+      }
+      participantes: {
+        Row: {
+          data_cadastro: string
+          documento: string
+          email: string | null
+          id: string
+          nome: string | null
+          telefone: string | null
+        }
+        Insert: {
+          data_cadastro?: string
+          documento: string
+          email?: string | null
+          id?: string
+          nome?: string | null
+          telefone?: string | null
+        }
+        Update: {
+          data_cadastro?: string
+          documento?: string
+          email?: string | null
+          id?: string
+          nome?: string | null
+          telefone?: string | null
+        }
+        Relationships: []
+      }
       usuarios: {
         Row: {
           bairro: string | null
