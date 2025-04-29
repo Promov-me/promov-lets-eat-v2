@@ -6,14 +6,15 @@ import Dashboard from "@/components/Dashboard";
 import ParticipanteDashboard from "@/components/ParticipanteDashboard";
 
 const Index = () => {
-  return <div className="container mx-auto p-6">
+  return (
+    <div className="container mx-auto p-6">
       <div className="flex justify-center mb-8">
         <img alt="Logo" className="h-24" src="/lovable-uploads/264c2e58-5519-4fec-8e18-8121764d8758.png" />
       </div>
       
       <Card className="p-6">
         <Tabs defaultValue="configuracao" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-3 mb-2">
             <TabsTrigger value="configuracao">Configuração da Campanha</TabsTrigger>
             <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
             <TabsTrigger value="consulta">Consulta de Números</TabsTrigger>
@@ -32,6 +33,8 @@ const Index = () => {
           </TabsContent>
         </Tabs>
       </Card>
-    </div>;
+    </div>
+  );
 };
+
 export default Index;

@@ -107,7 +107,6 @@ const ParticipanteDashboard = () => {
                       </CardHeader>
                       <CardContent className="pt-0 pb-4">
                         <p className="text-xs text-center text-gray-500">
-                          {/* Since the view doesn't include dates, we show "Número Válido" instead */}
                           Número Válido
                         </p>
                       </CardContent>
