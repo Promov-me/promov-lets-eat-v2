@@ -1,7 +1,10 @@
+
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ConfiguracaoCampanha from "@/components/ConfiguracaoCampanha";
 import Dashboard from "@/components/Dashboard";
+import ParticipanteDashboard from "@/components/ParticipanteDashboard";
+
 const Index = () => {
   return <div className="container mx-auto p-6">
       <div className="flex justify-center mb-8">
@@ -10,9 +13,10 @@ const Index = () => {
       
       <Card className="p-6">
         <Tabs defaultValue="configuracao" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="configuracao">Configuração da Campanha</TabsTrigger>
             <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
+            <TabsTrigger value="consulta">Consulta de Números</TabsTrigger>
           </TabsList>
           
           <TabsContent value="configuracao">
@@ -21,6 +25,10 @@ const Index = () => {
           
           <TabsContent value="dashboard">
             <Dashboard />
+          </TabsContent>
+          
+          <TabsContent value="consulta">
+            <ParticipanteDashboard />
           </TabsContent>
         </Tabs>
       </Card>

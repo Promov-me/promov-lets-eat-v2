@@ -53,91 +53,84 @@ export type Database = {
       }
       participantes: {
         Row: {
-          data_cadastro: string
-          documento: string
-          email: string | null
-          id: string
-          nome: string | null
-          telefone: string | null
-        }
-        Insert: {
-          data_cadastro?: string
-          documento: string
-          email?: string | null
-          id?: string
-          nome?: string | null
-          telefone?: string | null
-        }
-        Update: {
-          data_cadastro?: string
-          documento?: string
-          email?: string | null
-          id?: string
-          nome?: string | null
-          telefone?: string | null
-        }
-        Relationships: []
-      }
-      usuarios: {
-        Row: {
-          bairro: string | null
-          celular: string | null
           cep: string | null
           cidade: string | null
           complemento: string | null
-          cpf: string | null
-          created_at: string
+          data_cadastro: string
+          documento: string
           email: string | null
-          endereco: string | null
           genero: string | null
-          id_usuario: number
-          nascimento: string | null
+          id: string
+          id_participante: string | null
+          idade: string | null
           nome: string | null
-          numeros_da_sorte: string | null
+          numero: string | null
+          numeros_sorte: string | null
+          rua: string | null
           senha: string | null
+          telefone: string | null
           uf: string | null
         }
         Insert: {
-          bairro?: string | null
-          celular?: string | null
           cep?: string | null
           cidade?: string | null
           complemento?: string | null
-          cpf?: string | null
-          created_at?: string
+          data_cadastro?: string
+          documento: string
           email?: string | null
-          endereco?: string | null
           genero?: string | null
-          id_usuario?: number
-          nascimento?: string | null
+          id?: string
+          id_participante?: string | null
+          idade?: string | null
           nome?: string | null
-          numeros_da_sorte?: string | null
+          numero?: string | null
+          numeros_sorte?: string | null
+          rua?: string | null
           senha?: string | null
+          telefone?: string | null
           uf?: string | null
         }
         Update: {
-          bairro?: string | null
-          celular?: string | null
           cep?: string | null
           cidade?: string | null
           complemento?: string | null
-          cpf?: string | null
-          created_at?: string
+          data_cadastro?: string
+          documento?: string
           email?: string | null
-          endereco?: string | null
           genero?: string | null
-          id_usuario?: number
-          nascimento?: string | null
+          id?: string
+          id_participante?: string | null
+          idade?: string | null
           nome?: string | null
-          numeros_da_sorte?: string | null
+          numero?: string | null
+          numeros_sorte?: string | null
+          rua?: string | null
           senha?: string | null
+          telefone?: string | null
           uf?: string | null
         }
         Relationships: []
       }
     }
     Views: {
-      [_ in never]: never
+      numeros_cada_participante: {
+        Row: {
+          cep: string | null
+          cidade: string | null
+          complemento: string | null
+          documento: string | null
+          email: string | null
+          id: string | null
+          nome: string | null
+          numero: string | null
+          numeros_sorte: number[] | null
+          rua: string | null
+          senha: string | null
+          telefone: string | null
+          uf: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       [_ in never]: never
