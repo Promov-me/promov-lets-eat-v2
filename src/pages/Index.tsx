@@ -1,6 +1,8 @@
 
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 import ConfiguracaoCampanha from "@/components/ConfiguracaoCampanha";
 import Dashboard from "@/components/Dashboard";
 import ParticipanteDashboard from "@/components/ParticipanteDashboard";
@@ -10,6 +12,12 @@ const Index = () => {
     <div className="container mx-auto p-6">
       <div className="flex justify-center mb-8">
         <img alt="Logo" className="h-24" src="/lovable-uploads/264c2e58-5519-4fec-8e18-8121764d8758.png" />
+      </div>
+      
+      <div className="flex justify-end mb-4">
+        <Link to="/auth">
+          <Button variant="outline">Área do Participante</Button>
+        </Link>
       </div>
       
       <Card className="p-6">
