@@ -3,3 +3,9 @@ project_id = "uoovrxfpjsyvpkqdxkoa"
 
 [functions.gerar-numeros]
 verify_jwt = false
+
+[functions.cadastro-participante]
+verify_jwt = false
+
+[functions.login-participante]
+verify_jwt = false
