@@ -2,7 +2,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.37.0";
 
-// CORS Headers for cross-origin requests
+// CORS Headers para requisições cross-origin
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
@@ -10,12 +10,12 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
-  // Handle CORS preflight requests
+  // Lidar com requisições OPTIONS (CORS preflight)
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
-  // Check if request is POST
+  // Verificar se a requisição é POST
   if (req.method !== 'POST') {
     return new Response(JSON.stringify({ error: "Método não permitido" }), {
       status: 405,
@@ -24,7 +24,7 @@ serve(async (req) => {
   }
 
   try {
-    // Parse request body
+    // Analisar corpo da requisição
     const requestData = await req.json();
     const {
       nome,
@@ -42,7 +42,7 @@ serve(async (req) => {
       senha,
     } = requestData;
 
-    // Validate required fields
+    // Validar campos obrigatórios
     const requiredFields = ['nome', 'documento', 'senha'];
     const missingFields = requiredFields.filter(field => !requestData[field]);
     
@@ -59,17 +59,22 @@ serve(async (req) => {
       );
     }
 
-    // Initialize Supabase client
+    // Inicializar cliente Supabase
     const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? '';
     const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY') ?? '';
     const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-    // Check if document already exists
-    const { data: existingUser } = await supabase
+    // Verificar se o documento já existe
+    const { data: existingUser, error: checkError } = await supabase
       .from('participantes')
       .select('id')
       .eq('documento', documento)
       .maybeSingle();
+
+    if (checkError) {
+      console.error("Erro ao verificar documento:", checkError);
+      throw new Error(`Erro na verificação do documento: ${checkError.message}`);
+    }
 
     if (existingUser) {
       return new Response(
@@ -81,7 +86,7 @@ serve(async (req) => {
       );
     }
 
-    // Insert new participant
+    // Inserir novo participante
     const { data, error } = await supabase
       .from('participantes')
       .insert({
@@ -98,13 +103,17 @@ serve(async (req) => {
         cidade,
         uf,
         senha,
+        // Garantir que data_cadastro seja preenchido automaticamente pelo banco
       })
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) {
+      console.error("Erro na inserção:", error);
+      throw new Error(`Erro ao inserir participante: ${error.message}`);
+    }
 
-    // Return success response without sensitive data
+    // Retornar resposta de sucesso sem dados sensíveis
     const { senha: _, ...safeData } = data;
 
     return new Response(

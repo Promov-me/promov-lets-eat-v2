@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
@@ -90,29 +89,15 @@ const RegisterForm = () => {
   const onSubmit = async (values: RegisterFormValues) => {
     setIsLoading(true);
     try {
-      // Verificar se o documento já está cadastrado
-      const { data: existingUser, error: searchError } = await supabase
-        .from("participantes")
-        .select("id")
-        .eq("documento", values.documento)
-        .maybeSingle();
-
-      if (searchError) throw searchError;
-
-      if (existingUser) {
-        toast({
-          title: "Erro ao cadastrar",
-          description: "Este CPF/CNPJ já está cadastrado",
-          variant: "destructive",
-        });
-        setIsLoading(false);
-        return;
-      }
-
-      // Cadastrar o novo participante
-      const { data: newParticipante, error: insertError } = await supabase
-        .from("participantes")
-        .insert({
+      console.log("Enviando dados para cadastro:", { ...values, senha: "******" });
+      
+      // Usar a função edge do Supabase para cadastro
+      const response = await fetch(`https://uoovrxfpjsyvpkqdxkoa.supabase.co/functions/v1/cadastro-participante`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
           nome: values.nome,
           genero: values.genero,
           email: values.email,
@@ -126,25 +111,28 @@ const RegisterForm = () => {
           cidade: values.cidade,
           uf: values.uf,
           senha: values.senha,
-        })
-        .select()
-        .single();
+        }),
+      });
 
-      if (insertError) throw insertError;
+      const result = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(result.error || result.details || "Erro no cadastro");
+      }
 
       toast({
         title: "Cadastro realizado com sucesso",
         description: "Você pode fazer login agora",
       });
       
-      // Navegar para a aba de login
+      // Resetar formulário
       form.reset();
       
     } catch (error) {
       console.error("Erro ao cadastrar:", error);
       toast({
         title: "Erro ao cadastrar",
-        description: "Ocorreu um erro ao processar seu cadastro. Tente novamente.",
+        description: error instanceof Error ? error.message : "Ocorreu um erro ao processar seu cadastro. Tente novamente.",
         variant: "destructive",
       });
     } finally {
