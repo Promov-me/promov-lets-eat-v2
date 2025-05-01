@@ -53,6 +53,7 @@ export type Database = {
       }
       participantes: {
         Row: {
+          bairro: string | null
           cep: string | null
           cidade: string | null
           complemento: string | null
@@ -72,6 +73,7 @@ export type Database = {
           uf: string | null
         }
         Insert: {
+          bairro?: string | null
           cep?: string | null
           cidade?: string | null
           complemento?: string | null
@@ -91,6 +93,7 @@ export type Database = {
           uf?: string | null
         }
         Update: {
+          bairro?: string | null
           cep?: string | null
           cidade?: string | null
           complemento?: string | null

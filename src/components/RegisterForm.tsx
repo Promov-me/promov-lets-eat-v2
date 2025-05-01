@@ -89,7 +89,10 @@ const RegisterForm = () => {
   const onSubmit = async (values: RegisterFormValues) => {
     setIsLoading(true);
     try {
-      console.log("Enviando dados para cadastro:", { ...values, senha: "******" });
+      console.log("Enviando dados para cadastro:", { 
+        ...values, 
+        senha: "******" // Removendo senha por segurança nos logs
+      });
       
       // Usar a função edge do Supabase para cadastro
       const response = await fetch(`https://uoovrxfpjsyvpkqdxkoa.supabase.co/functions/v1/cadastro-participante`, {
@@ -115,6 +118,7 @@ const RegisterForm = () => {
       });
 
       const result = await response.json();
+      console.log("Resposta do servidor:", result);
       
       if (!response.ok) {
         throw new Error(result.error || result.details || "Erro no cadastro");

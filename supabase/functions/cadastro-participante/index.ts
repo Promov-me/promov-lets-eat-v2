@@ -10,13 +10,17 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
+  console.log("Iniciando processamento da requisição cadastro-participante");
+  
   // Lidar com requisições OPTIONS (CORS preflight)
   if (req.method === 'OPTIONS') {
+    console.log("Requisição OPTIONS recebida - retornando headers CORS");
     return new Response(null, { headers: corsHeaders });
   }
 
   // Verificar se a requisição é POST
   if (req.method !== 'POST') {
+    console.log(`Método não permitido: ${req.method}`);
     return new Response(JSON.stringify({ error: "Método não permitido" }), {
       status: 405,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
@@ -26,6 +30,11 @@ serve(async (req) => {
   try {
     // Analisar corpo da requisição
     const requestData = await req.json();
+    console.log("Dados recebidos:", JSON.stringify({
+      ...requestData,
+      senha: requestData.senha ? "[REDACTED]" : undefined
+    }));
+    
     const {
       nome,
       genero,
@@ -43,10 +52,11 @@ serve(async (req) => {
     } = requestData;
 
     // Validar campos obrigatórios
-    const requiredFields = ['nome', 'documento', 'senha'];
+    const requiredFields = ['nome', 'documento', 'senha', 'bairro'];
     const missingFields = requiredFields.filter(field => !requestData[field]);
     
     if (missingFields.length > 0) {
+      console.log(`Campos obrigatórios ausentes: ${missingFields.join(', ')}`);
       return new Response(
         JSON.stringify({ 
           error: "Campos obrigatórios ausentes", 
@@ -62,9 +72,12 @@ serve(async (req) => {
     // Inicializar cliente Supabase
     const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? '';
     const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY') ?? '';
+    console.log(`Conectando ao Supabase: URL=${supabaseUrl.substring(0, 20)}...`);
+    
     const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
     // Verificar se o documento já existe
+    console.log(`Verificando se o documento já existe: ${documento}`);
     const { data: existingUser, error: checkError } = await supabase
       .from('participantes')
       .select('id')
@@ -77,6 +90,7 @@ serve(async (req) => {
     }
 
     if (existingUser) {
+      console.log(`Documento já cadastrado: ${documento}`);
       return new Response(
         JSON.stringify({ error: "Este documento já está cadastrado" }),
         {
@@ -87,24 +101,31 @@ serve(async (req) => {
     }
 
     // Inserir novo participante
+    console.log("Inserindo novo participante");
+    const participanteData = {
+      nome,
+      genero,
+      email,
+      telefone,
+      documento,
+      rua,
+      numero,
+      bairro,
+      complemento: complemento || null,
+      cep,
+      cidade,
+      uf,
+      senha,
+    };
+    
+    console.log("Estrutura de dados a ser inserida:", JSON.stringify({
+      ...participanteData,
+      senha: "[REDACTED]"
+    }));
+
     const { data, error } = await supabase
       .from('participantes')
-      .insert({
-        nome,
-        genero,
-        email,
-        telefone,
-        documento,
-        rua,
-        numero,
-        bairro,
-        complemento: complemento || null,
-        cep,
-        cidade,
-        uf,
-        senha,
-        // Garantir que data_cadastro seja preenchido automaticamente pelo banco
-      })
+      .insert(participanteData)
       .select()
       .single();
 
@@ -113,6 +134,7 @@ serve(async (req) => {
       throw new Error(`Erro ao inserir participante: ${error.message}`);
     }
 
+    console.log("Participante cadastrado com sucesso");
     // Retornar resposta de sucesso sem dados sensíveis
     const { senha: _, ...safeData } = data;
 
