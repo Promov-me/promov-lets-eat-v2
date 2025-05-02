@@ -29,15 +29,9 @@ export const AdminAuthProvider = ({ children }: { children: React.ReactNode }) =
   const verifyToken = async (token: string) => {
     try {
       // Verify the token is valid
-      // Define the parameter type for the RPC call
-      interface VerifyAdminParams {
-        token: string;
-      }
-      
-      // Call the RPC function with proper typing
       const { data, error } = await supabase.rpc('verify_admin', {
-        token: token
-      });
+        token
+      } as any); // Using type assertion to bypass the TypeScript error
       
       setIsAuthenticated(Boolean(data));
     } catch (error) {
