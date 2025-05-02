@@ -34,9 +34,9 @@ export const AdminAuthProvider = ({ children }: { children: React.ReactNode }) =
         token: string;
       }
       
-      const { data, error } = await supabase.rpc<boolean>('verify_admin', {
+      const { data, error } = await supabase.rpc<boolean, VerifyAdminParams>('verify_admin', {
         token: token
-      } as VerifyAdminParams);
+      });
       
       setIsAuthenticated(Boolean(data));
     } catch (error) {
