@@ -29,7 +29,11 @@ export const AdminAuthProvider = ({ children }: { children: React.ReactNode }) =
   const verifyToken = async (token: string) => {
     try {
       // Verify the token is valid
-      const { data, error } = await supabase.rpc('verify_admin', { token });
+      // Fix TypeScript error by properly typing the parameters object
+      const { data, error } = await supabase.rpc('verify_admin', { 
+        token: token 
+      } as { token: string });
+      
       setIsAuthenticated(Boolean(data));
     } catch (error) {
       console.error("Error verifying token:", error);
