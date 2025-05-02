@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,6 +8,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useAdminAuth } from "@/context/AdminAuthContext";
 import { toast } from "@/hooks/use-toast";
 
 const loginSchema = z.object({
@@ -17,14 +18,18 @@ const loginSchema = z.object({
 
 type LoginFormValues = z.infer<typeof loginSchema>;
 
-// Credenciais de administrador hardcoded
-const ADMIN_EMAIL = "admin@zum.net.br";
-const ADMIN_PASSWORD = "Zumbi@123";
-
 const AdminAuth = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-
+  const { login, isAuthenticated } = useAdminAuth();
+  
+  // Redirect to dashboard if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/admin/dashboard");
+    }
+  }, [isAuthenticated, navigate]);
+  
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -37,25 +42,15 @@ const AdminAuth = () => {
     setIsLoading(true);
     
     try {
-      // Verificar credenciais de administrador
-      if (values.email === ADMIN_EMAIL && values.password === ADMIN_PASSWORD) {
-        // Autenticação bem-sucedida
-        localStorage.setItem("adminAuth", "true");
-        
+      const success = await login(values.email, values.password);
+      if (success) {
         toast({
           title: "Login administrativo bem-sucedido",
-          description: "Você será redirecionado para o painel administrativo",
+          description: "Você está sendo redirecionado para o painel administrativo",
         });
         
         navigate("/admin/dashboard");
-      } else {
-        // Autenticação falhou
-        toast({
-          title: "Erro de autenticação",
-          description: "Email ou senha incorretos",
-          variant: "destructive",
-        });
-      }
+      } 
     } catch (error) {
       console.error("Erro ao fazer login:", error);
       toast({

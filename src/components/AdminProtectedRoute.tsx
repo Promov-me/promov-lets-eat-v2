@@ -1,6 +1,7 @@
 
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Navigate } from "react-router-dom";
+import { useAdminAuth } from "@/context/AdminAuthContext";
 import { toast } from "@/hooks/use-toast";
 
 interface AdminProtectedRouteProps {
@@ -8,27 +9,25 @@ interface AdminProtectedRouteProps {
 }
 
 const AdminProtectedRoute: React.FC<AdminProtectedRouteProps> = ({ children }) => {
-  const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
+  const { isAuthenticated, isLoading } = useAdminAuth();
 
-  useEffect(() => {
-    const adminAuth = localStorage.getItem("adminAuth");
-    setIsAdmin(adminAuth === "true");
-    
-    if (adminAuth !== "true") {
-      toast({
-        title: "Acesso restrito",
-        description: "Esta área é restrita a administradores",
-        variant: "destructive",
-      });
-    }
-  }, []);
-
-  // Aguardar a verificação de autenticação
-  if (isAdmin === null) {
+  // Show loading state while checking authentication
+  if (isLoading) {
     return <div className="container mx-auto p-6">Verificando autenticação...</div>;
   }
 
-  return isAdmin ? <>{children}</> : <Navigate to="/admin" />;
+  // If not authenticated, redirect to login and show notification
+  if (!isAuthenticated) {
+    toast({
+      title: "Acesso restrito",
+      description: "Esta área é restrita a administradores",
+      variant: "destructive",
+    });
+    return <Navigate to="/admin" />;
+  }
+
+  // User is authenticated, render children
+  return <>{children}</>;
 };
 
 export default AdminProtectedRoute;

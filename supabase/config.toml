@@ -1,11 +1,22 @@
 
 project_id = "uoovrxfpjsyvpkqdxkoa"
 
-[functions.gerar-numeros]
-verify_jwt = false
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "storage", "graphql_public"]
 
-[functions.cadastro-participante]
-verify_jwt = false
+[db]
+port = 54322
 
-[functions.login-participante]
+[studio]
+port = 54323
+
+[inbucket]
+port = 54324
+
+[storage]
+port = 54325
+
+[functions.admin-auth]
 verify_jwt = false

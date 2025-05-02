@@ -1,36 +1,20 @@
 
-import React, { useEffect } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { toast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ConfiguracaoCampanha from "@/components/ConfiguracaoCampanha";
 import Dashboard from "@/components/Dashboard";
 import ParticipanteDashboard from "@/components/ParticipanteDashboard";
+import { useAdminAuth } from "@/context/AdminAuthContext";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
-  
-  // Verificar autenticação do administrador
-  useEffect(() => {
-    const adminAuth = localStorage.getItem("adminAuth");
-    if (adminAuth !== "true") {
-      toast({
-        title: "Acesso negado",
-        description: "Você precisa estar autenticado como administrador",
-        variant: "destructive",
-      });
-      navigate("/admin");
-    }
-  }, [navigate]);
+  const { logout } = useAdminAuth();
   
   const handleLogout = () => {
-    localStorage.removeItem("adminAuth");
-    toast({
-      title: "Logout realizado",
-      description: "Você foi desconectado com sucesso",
-    });
+    logout();
     navigate("/admin");
   };
 
