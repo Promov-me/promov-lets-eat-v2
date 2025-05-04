@@ -9,6 +9,59 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      admin_sessions: {
+        Row: {
+          admin_id: string
+          created_at: string
+          expires_at: string
+          id: string
+          token: string
+        }
+        Insert: {
+          admin_id: string
+          created_at?: string
+          expires_at: string
+          id?: string
+          token: string
+        }
+        Update: {
+          admin_id?: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          token?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_sessions_admin_id_fkey"
+            columns: ["admin_id"]
+            isOneToOne: true
+            referencedRelation: "admins"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      admins: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          password: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          password: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          password?: string
+        }
+        Relationships: []
+      }
       configuracao_campanha: {
         Row: {
           created_at: string
@@ -114,6 +167,45 @@ export type Database = {
         }
         Relationships: []
       }
+      vendas: {
+        Row: {
+          created_at: string
+          dataDaVenda: string | null
+          documento: string | null
+          documentoFiscal: string | null
+          formaDePagamento: string | null
+          id: string
+          imagemCupom: string | null
+          itemProcessado: string | null
+          loja: string | null
+          valorTotal: string | null
+        }
+        Insert: {
+          created_at?: string
+          dataDaVenda?: string | null
+          documento?: string | null
+          documentoFiscal?: string | null
+          formaDePagamento?: string | null
+          id?: string
+          imagemCupom?: string | null
+          itemProcessado?: string | null
+          loja?: string | null
+          valorTotal?: string | null
+        }
+        Update: {
+          created_at?: string
+          dataDaVenda?: string | null
+          documento?: string | null
+          documentoFiscal?: string | null
+          formaDePagamento?: string | null
+          id?: string
+          imagemCupom?: string | null
+          itemProcessado?: string | null
+          loja?: string | null
+          valorTotal?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       numeros_cada_participante: {
@@ -136,7 +228,14 @@ export type Database = {
       }
     }
     Functions: {
-      [_ in never]: never
+      admin_login: {
+        Args: { admin_email: string; admin_password: string }
+        Returns: Json
+      }
+      verify_admin: {
+        Args: { token: string }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never

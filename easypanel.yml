@@ -1,0 +1,17 @@
+
+name: sorteios-campanha
+description: Aplicativo de gerenciamento de campanha de sorteio
+icon: https://cdn-icons-png.flaticon.com/512/1402/1402120.png
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 8080
+    environment:
+      NODE_ENV: production
+    proxy:
+      port: 8080
+      secure: true

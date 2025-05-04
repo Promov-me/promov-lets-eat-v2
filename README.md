@@ -1,73 +1,49 @@
-# Welcome to your Lovable project
 
-## Project info
+# Número da Sorte - Campanha Web
 
-**URL**: https://lovable.dev/projects/9f63a1bf-ab64-47a6-93d5-f478844d3522
+## Descrição
+Plataforma para gerenciamento de campanha de sorteio com geração de números da sorte.
 
-## How can I edit this code?
+## Configuração para deploy com Easypanel
 
-There are several ways of editing your application.
+### Pré-requisitos
+- Docker instalado no servidor
+- Easypanel instalado na sua VPS
+- Domínio configurado apontando para o seu servidor
 
-**Use Lovable**
+### Passos para deploy
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/9f63a1bf-ab64-47a6-93d5-f478844d3522) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+1. Clone este repositório na sua máquina local:
+```bash
+git clone <url-do-repositório>
+cd <nome-do-repositório>
 ```
 
-**Edit a file directly in GitHub**
+2. Copie o arquivo de exemplo de configuração e edite conforme necessário:
+```bash
+cp .env.example .env
+nano .env
+```
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+3. Execute o script de deploy:
+```bash
+chmod +x deploy-easypanel.sh
+./deploy-easypanel.sh
+```
 
-**Use GitHub Codespaces**
+4. Siga as instruções na tela para completar o processo de deploy.
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+### Estrutura dos arquivos de configuração
 
-## What technologies are used for this project?
+- **Dockerfile**: Contém as instruções para construir a imagem Docker da aplicação.
+- **docker-compose.yml**: Define os serviços e suas configurações para o ambiente Docker.
+- **easypanel.yml**: Configuração específica para o Easypanel.
+- **.env**: Variáveis de ambiente necessárias para a aplicação.
 
-This project is built with:
+## Acessando a aplicação
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+Uma vez que o deploy esteja concluído, você pode acessar a aplicação através do domínio configurado no arquivo `.env`.
 
-## How can I deploy this project?
+## Suporte
 
-Simply open [Lovable](https://lovable.dev/projects/9f63a1bf-ab64-47a6-93d5-f478844d3522) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+Para suporte, entre em contato com a equipe de desenvolvimento.
