@@ -45,6 +45,29 @@ serve(async (req) => {
         }
       )
     }
+    
+    // Verificar se o participante já está cadastrado
+    const { data: participante, error: participanteError } = await supabaseClient
+      .from('participantes')
+      .select('documento')
+      .eq('documento', documento)
+      .maybeSingle()
+      
+    if (participanteError) throw participanteError
+    
+    // Se o participante não estiver cadastrado, retornar erro
+    if (!participante) {
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: 'Participante não cadastrado'
+        }),
+        {
+          status: 404,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      )
+    }
 
     // Buscar configuração atual (se não existir, cria uma configuração padrão)
     let { data: config, error: configError } = await supabaseClient
@@ -95,13 +118,6 @@ serve(async (req) => {
       })))
     
     if (insertError) throw insertError
-
-    // Verificar se o participante já existe e inseri-lo se não existir
-    const { error: participanteError } = await supabaseClient
-      .from('participantes')
-      .upsert({ documento }, { onConflict: 'documento' })
-    
-    if (participanteError) throw participanteError
 
     return new Response(
       JSON.stringify({ 

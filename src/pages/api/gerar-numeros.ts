@@ -21,15 +21,37 @@ export default async function handler(req: Request) {
       });
     }
 
+    // Verificar se o participante já está cadastrado
+    const { data: participante, error: participanteError } = await supabase
+      .from('participantes')
+      .select('documento')
+      .eq('documento', documento)
+      .maybeSingle();
+      
+    if (participanteError) throw participanteError;
+    
+    // Se o participante não estiver cadastrado, retornar erro
+    if (!participante) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: 'Participante não cadastrado'
+      }), {
+        status: 404,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
     // Buscar configuração atual
     const { data: config, error: configError } = await supabase
       .from('configuracao_campanha')
       .select('series_numericas')
-      .single();
+      .maybeSingle();
 
     if (configError) throw configError;
-
-    const maxNumber = config.series_numericas * 100000;
+    
+    // Se não houver configuração, usar o valor padrão
+    const seriesNumericas = config?.series_numericas || 1;
+    const maxNumber = seriesNumericas * 100000;
 
     // Buscar números existentes
     const { data: existingNumbers, error: numbersError } = await supabase
@@ -38,7 +60,7 @@ export default async function handler(req: Request) {
 
     if (numbersError) throw numbersError;
 
-    const existingSet = new Set(existingNumbers?.map(n => n.numero));
+    const existingSet = new Set(existingNumbers?.map(n => n.numero) || []);
 
     // Gerar novos números
     const novosNumeros = generateUniqueRandomNumbers(quantidade, maxNumber, existingSet);
@@ -52,13 +74,6 @@ export default async function handler(req: Request) {
       })));
 
     if (insertError) throw insertError;
-
-    // Verificar se o participante já existe e inseri-lo se não existir
-    const { error: participanteError } = await supabase
-      .from('participantes')
-      .upsert({ documento }, { onConflict: 'documento' });
-
-    if (participanteError) throw participanteError;
 
     return new Response(JSON.stringify({ 
       success: true, 

@@ -102,48 +102,22 @@ const ConfiguracaoCampanha = () => {
   const gerarNumerosMutation = useMutation({
     mutationFn: async ({ documento, quantidade }: { documento: string; quantidade: string }) => {
       try {
-        // Verificar se temos configuração carregada
-        if (!configLoaded || !configData) {
-          throw new Error("Configuração da campanha não carregada. Tente novamente em alguns instantes.");
+        // Chamando a função Edge para gerar números
+        const response = await fetch('https://uoovrxfpjsyvpkqdxkoa.supabase.co/functions/v1/gerar-numeros', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ documento, quantidade: parseInt(quantidade) })
+        });
+        
+        const result = await response.json();
+        
+        if (!response.ok) {
+          throw new Error(result.error || 'Erro ao gerar números');
         }
         
-        // Buscar configuração atual
-        const maxNumber = configData.series_numericas * 100000;
-        
-        // Buscar números existentes
-        const { data: existingNumbers, error: numbersError } = await supabase
-          .from("numeros_sorte")
-          .select("numero");
-        
-        if (numbersError) throw numbersError;
-        
-        const existingSet = new Set(existingNumbers?.map(n => n.numero) || []);
-        
-        // Gerar novos números
-        const novosNumeros = generateUniqueRandomNumbers(
-          parseInt(quantidade), 
-          maxNumber, 
-          existingSet
-        );
-        
-        // Inserir números gerados
-        const { error: insertError } = await supabase
-          .from("numeros_sorte")
-          .insert(novosNumeros.map(numero => ({
-            numero,
-            documento
-          })));
-        
-        if (insertError) throw insertError;
-        
-        // Verificar se o participante já existe e inseri-lo se não existir
-        const { error: participanteError } = await supabase
-          .from("participantes")
-          .upsert({ documento }, { onConflict: 'documento' });
-        
-        if (participanteError) throw participanteError;
-        
-        return { numeros: novosNumeros };
+        return result;
       } catch (error) {
         console.error("Erro completo:", error);
         throw error;
@@ -157,12 +131,21 @@ const ConfiguracaoCampanha = () => {
       setDocumento("");
       setQuantidade("");
     },
-    onError: (error) => {
-      toast({
-        title: "Erro",
-        description: error instanceof Error ? error.message : "Erro ao gerar números",
-        variant: "destructive"
-      });
+    onError: (error: any) => {
+      // Verificar se é o erro específico de "Participante não cadastrado"
+      if (error.message === "Participante não cadastrado") {
+        toast({
+          title: "Participante não cadastrado",
+          description: "Este documento não pertence a um participante cadastrado.",
+          variant: "destructive"
+        });
+      } else {
+        toast({
+          title: "Erro",
+          description: error instanceof Error ? error.message : "Erro ao gerar números",
+          variant: "destructive"
+        });
+      }
       console.error("Erro ao gerar números:", error);
     }
   });
