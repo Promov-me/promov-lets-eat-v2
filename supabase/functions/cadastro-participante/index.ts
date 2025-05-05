@@ -52,13 +52,14 @@ serve(async (req) => {
     } = requestData;
 
     // Validar campos obrigatórios
-    const requiredFields = ['nome', 'documento', 'senha', 'bairro'];
+    const requiredFields = ['nome', 'documento', 'senha', 'email', 'telefone'];
     const missingFields = requiredFields.filter(field => !requestData[field]);
     
     if (missingFields.length > 0) {
       console.log(`Campos obrigatórios ausentes: ${missingFields.join(', ')}`);
       return new Response(
         JSON.stringify({ 
+          success: false,
           error: "Campos obrigatórios ausentes", 
           missingFields 
         }),
@@ -92,7 +93,10 @@ serve(async (req) => {
     if (existingUser) {
       console.log(`Documento já cadastrado: ${documento}`);
       return new Response(
-        JSON.stringify({ error: "Este documento já está cadastrado" }),
+        JSON.stringify({ 
+          success: false,
+          error: "Este documento já está cadastrado" 
+        }),
         {
           status: 409,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' }
@@ -100,8 +104,7 @@ serve(async (req) => {
       );
     }
 
-    // Inserir novo participante
-    console.log("Inserindo novo participante");
+    // Preparar dados para inserção
     const participanteData = {
       nome,
       genero,
@@ -123,6 +126,7 @@ serve(async (req) => {
       senha: "[REDACTED]"
     }));
 
+    // Inserir novo participante
     const { data, error } = await supabase
       .from('participantes')
       .insert(participanteData)
@@ -155,6 +159,7 @@ serve(async (req) => {
     
     return new Response(
       JSON.stringify({ 
+        success: false,
         error: "Falha ao processar o cadastro",
         details: error.message 
       }),

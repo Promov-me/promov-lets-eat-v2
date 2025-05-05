@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
@@ -9,6 +10,8 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Info, AlertCircle } from "lucide-react";
 
 const estadosBrasileiros = [
   { sigla: "AC", nome: "Acre" },
@@ -64,6 +67,7 @@ type RegisterFormValues = z.infer<typeof registerSchema>;
 
 const RegisterForm = () => {
   const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const navigate = useNavigate();
 
   const form = useForm<RegisterFormValues>({
@@ -88,6 +92,8 @@ const RegisterForm = () => {
 
   const onSubmit = async (values: RegisterFormValues) => {
     setIsLoading(true);
+    setErrorMessage(null);
+    
     try {
       console.log("Enviando dados para cadastro:", { 
         ...values, 
@@ -134,9 +140,13 @@ const RegisterForm = () => {
       
     } catch (error) {
       console.error("Erro ao cadastrar:", error);
+      const errorMsg = error instanceof Error ? error.message : "Ocorreu um erro ao processar seu cadastro. Tente novamente.";
+      
+      setErrorMessage(errorMsg);
+      
       toast({
         title: "Erro ao cadastrar",
-        description: error instanceof Error ? error.message : "Ocorreu um erro ao processar seu cadastro. Tente novamente.",
+        description: errorMsg,
         variant: "destructive",
       });
     } finally {
@@ -146,6 +156,14 @@ const RegisterForm = () => {
 
   return (
     <Form {...form}>
+      {errorMessage && (
+        <Alert variant="destructive" className="mb-4">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Erro no cadastro</AlertTitle>
+          <AlertDescription>{errorMessage}</AlertDescription>
+        </Alert>
+      )}
+      
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <div className="grid grid-cols-1 gap-4">
           <FormField
@@ -153,7 +171,7 @@ const RegisterForm = () => {
             name="nome"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Nome completo</FormLabel>
+                <FormLabel>Nome completo*</FormLabel>
                 <FormControl>
                   <Input placeholder="Digite seu nome completo" {...field} />
                 </FormControl>
@@ -167,7 +185,7 @@ const RegisterForm = () => {
             name="genero"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Gênero</FormLabel>
+                <FormLabel>Gênero*</FormLabel>
                 <Select
                   onValueChange={field.onChange}
                   defaultValue={field.value}
@@ -195,7 +213,7 @@ const RegisterForm = () => {
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>E-mail</FormLabel>
+                  <FormLabel>E-mail*</FormLabel>
                   <FormControl>
                     <Input placeholder="Digite seu e-mail" type="email" {...field} />
                   </FormControl>
@@ -209,7 +227,7 @@ const RegisterForm = () => {
               name="telefone"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Telefone</FormLabel>
+                  <FormLabel>Telefone*</FormLabel>
                   <FormControl>
                     <Input placeholder="(00) 00000-0000" {...field} />
                   </FormControl>
@@ -224,7 +242,7 @@ const RegisterForm = () => {
             name="documento"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>CPF/CNPJ</FormLabel>
+                <FormLabel>CPF/CNPJ*</FormLabel>
                 <FormControl>
                   <Input placeholder="Digite seu CPF ou CNPJ" {...field} />
                 </FormControl>
@@ -240,7 +258,7 @@ const RegisterForm = () => {
                 name="rua"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Endereço</FormLabel>
+                    <FormLabel>Endereço*</FormLabel>
                     <FormControl>
                       <Input placeholder="Digite seu endereço" {...field} />
                     </FormControl>
@@ -255,7 +273,7 @@ const RegisterForm = () => {
               name="numero"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Número</FormLabel>
+                  <FormLabel>Número*</FormLabel>
                   <FormControl>
                     <Input placeholder="Nº" {...field} />
                   </FormControl>
@@ -271,7 +289,7 @@ const RegisterForm = () => {
               name="bairro"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Bairro</FormLabel>
+                  <FormLabel>Bairro*</FormLabel>
                   <FormControl>
                     <Input placeholder="Digite seu bairro" {...field} />
                   </FormControl>
@@ -301,7 +319,7 @@ const RegisterForm = () => {
               name="cep"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>CEP</FormLabel>
+                  <FormLabel>CEP*</FormLabel>
                   <FormControl>
                     <Input placeholder="00000-000" {...field} />
                   </FormControl>
@@ -315,7 +333,7 @@ const RegisterForm = () => {
               name="cidade"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Cidade</FormLabel>
+                  <FormLabel>Cidade*</FormLabel>
                   <FormControl>
                     <Input placeholder="Digite sua cidade" {...field} />
                   </FormControl>
@@ -329,7 +347,7 @@ const RegisterForm = () => {
               name="uf"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Estado</FormLabel>
+                  <FormLabel>Estado*</FormLabel>
                   <Select
                     onValueChange={field.onChange}
                     defaultValue={field.value}
@@ -342,7 +360,7 @@ const RegisterForm = () => {
                     <SelectContent>
                       {estadosBrasileiros.map((estado) => (
                         <SelectItem key={estado.sigla} value={estado.sigla}>
-                          {estado.sigla}
+                          {estado.sigla} - {estado.nome}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -359,7 +377,7 @@ const RegisterForm = () => {
               name="senha"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Senha</FormLabel>
+                  <FormLabel>Senha*</FormLabel>
                   <FormControl>
                     <Input type="password" placeholder="Digite sua senha" {...field} />
                   </FormControl>
@@ -373,7 +391,7 @@ const RegisterForm = () => {
               name="confirmarSenha"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Confirme a senha</FormLabel>
+                  <FormLabel>Confirme a senha*</FormLabel>
                   <FormControl>
                     <Input type="password" placeholder="Digite sua senha novamente" {...field} />
                   </FormControl>
@@ -383,6 +401,13 @@ const RegisterForm = () => {
             />
           </div>
         </div>
+
+        <Alert className="mt-4">
+          <Info className="h-4 w-4" />
+          <AlertDescription>
+            Campos marcados com * são de preenchimento obrigatório
+          </AlertDescription>
+        </Alert>
         
         <Button type="submit" className="w-full" disabled={isLoading}>
           {isLoading ? "Cadastrando..." : "Cadastrar"}
