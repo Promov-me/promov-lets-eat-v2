@@ -1,0 +1,104 @@
+
+import React from "react";
+import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { UseFormReturn } from "react-hook-form";
+import { RegisterFormValues } from "./schema";
+
+interface PersonalInfoFieldsProps {
+  form: UseFormReturn<RegisterFormValues>;
+}
+
+const PersonalInfoFields: React.FC<PersonalInfoFieldsProps> = ({ form }) => {
+  return (
+    <>
+      <FormField
+        control={form.control}
+        name="nome"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Nome completo*</FormLabel>
+            <FormControl>
+              <Input placeholder="Digite seu nome completo" {...field} />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+      
+      <FormField
+        control={form.control}
+        name="genero"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Gênero*</FormLabel>
+            <Select
+              onValueChange={field.onChange}
+              defaultValue={field.value}
+            >
+              <FormControl>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione seu gênero" />
+                </SelectTrigger>
+              </FormControl>
+              <SelectContent>
+                <SelectItem value="masculino">Masculino</SelectItem>
+                <SelectItem value="feminino">Feminino</SelectItem>
+                <SelectItem value="outro">Outro</SelectItem>
+                <SelectItem value="prefiro_nao_informar">Prefiro não informar</SelectItem>
+              </SelectContent>
+            </Select>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <FormField
+          control={form.control}
+          name="email"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>E-mail*</FormLabel>
+              <FormControl>
+                <Input placeholder="Digite seu e-mail" type="email" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        
+        <FormField
+          control={form.control}
+          name="telefone"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Telefone*</FormLabel>
+              <FormControl>
+                <Input placeholder="(00) 00000-0000" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </div>
+      
+      <FormField
+        control={form.control}
+        name="documento"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>CPF/CNPJ*</FormLabel>
+            <FormControl>
+              <Input placeholder="Digite seu CPF ou CNPJ" {...field} />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+    </>
+  );
+};
+
+export default PersonalInfoFields;
