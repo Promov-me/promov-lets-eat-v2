@@ -27,6 +27,21 @@ serve(async (req) => {
     });
   }
 
+  // Verificar autorização
+  const authHeader = req.headers.get('authorization');
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    console.log('Autorização ausente ou inválida');
+    return new Response(JSON.stringify({ 
+      success: false, 
+      error: "Autorização necessária",
+      code: 401,
+      message: "Missing or invalid authorization header" 
+    }), {
+      status: 401,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    });
+  }
+  
   try {
     // Analisar corpo da requisição
     const requestData = await req.json();

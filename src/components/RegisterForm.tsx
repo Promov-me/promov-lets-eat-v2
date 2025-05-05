@@ -100,11 +100,17 @@ const RegisterForm = () => {
         senha: "******" // Removendo senha por segurança nos logs
       });
       
+      // Get the Supabase anon key for authentication
+      const supabaseKey = supabase.supabaseKey;
+      
       // Usar a função edge do Supabase para cadastro
       const response = await fetch(`https://uoovrxfpjsyvpkqdxkoa.supabase.co/functions/v1/cadastro-participante`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          // Add the required authorization header
+          'apikey': supabaseKey,
+          'Authorization': `Bearer ${supabaseKey}`
         },
         body: JSON.stringify({
           nome: values.nome,
