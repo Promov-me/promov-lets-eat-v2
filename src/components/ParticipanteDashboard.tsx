@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
@@ -8,7 +7,7 @@ import { Search, Ticket } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 
-// Define an interface for the participante data to include the quantidade_numeros property
+// Define an interface for the participante data with the quantidade_numeros property
 interface ParticipanteData {
   id: string;
   nome: string | null;
@@ -22,7 +21,7 @@ interface ParticipanteData {
   cep: string | null;
   uf: string | null;
   numeros_sorte: number[] | null;
-  quantidade_numeros?: number | null; // Making this property optional with ?
+  quantidade_numeros: number | null; // This is now required since we added it to the view
 }
 
 const ParticipanteDashboard = () => {
@@ -67,7 +66,7 @@ const ParticipanteDashboard = () => {
     setIsSearching(true);
   };
 
-  // Use the quantidade_numeros field from the database if available, otherwise fall back to array length
+  // Use the quantidade_numeros field from the database directly now that it's available
   const quantidadeCupons = participante?.quantidade_numeros ?? participante?.numeros_sorte?.length ?? 0;
 
   return (

@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { Ticket } from "lucide-react";
 
-// Define an interface for the participante data to include the quantidade_numeros property
+// Define an interface for the participante data with the quantidade_numeros property
 interface ParticipanteData {
   id: string | null;
   nome: string | null;
@@ -22,7 +21,7 @@ interface ParticipanteData {
   cep: string | null;
   uf: string | null;
   numeros_sorte: number[] | null;
-  quantidade_numeros?: number | null; // Making this property optional with ?
+  quantidade_numeros: number | null; // This is now required since we added it to the view
 }
 
 const NumerosSorte = () => {
@@ -83,7 +82,7 @@ const NumerosSorte = () => {
     });
   };
 
-  // Use the quantidade_numeros field from the database if available, otherwise fall back to array length
+  // Use the quantidade_numeros field from the database directly now that it's available
   const quantidadeCupons = participante?.quantidade_numeros ?? participante?.numeros_sorte?.length ?? 0;
 
   if (isLoading) {
