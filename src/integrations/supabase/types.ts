@@ -120,6 +120,7 @@ export type Database = {
           nome: string | null
           numero: string | null
           numeros_sorte: string | null
+          quantidade_numeros: number | null
           rua: string | null
           senha: string | null
           telefone: string | null
@@ -140,6 +141,7 @@ export type Database = {
           nome?: string | null
           numero?: string | null
           numeros_sorte?: string | null
+          quantidade_numeros?: number | null
           rua?: string | null
           senha?: string | null
           telefone?: string | null
@@ -160,6 +162,7 @@ export type Database = {
           nome?: string | null
           numero?: string | null
           numeros_sorte?: string | null
+          quantidade_numeros?: number | null
           rua?: string | null
           senha?: string | null
           telefone?: string | null

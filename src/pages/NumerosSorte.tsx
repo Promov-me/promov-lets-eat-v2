@@ -66,7 +66,8 @@ const NumerosSorte = () => {
     });
   };
 
-  const quantidadeCupons = participante?.numeros_sorte?.length || 0;
+  // Use the quantidade_numeros field from the database if available, otherwise fall back to array length
+  const quantidadeCupons = participante?.quantidade_numeros ?? participante?.numeros_sorte?.length ?? 0;
 
   if (isLoading) {
     return (
