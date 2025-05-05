@@ -8,6 +8,23 @@ import { Search, Ticket } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 
+// Define an interface for the participante data to include the quantidade_numeros property
+interface ParticipanteData {
+  id: string;
+  nome: string | null;
+  documento: string;
+  email: string | null;
+  telefone: string | null;
+  rua: string | null;
+  numero: string | null;
+  cidade: string | null;
+  complemento: string | null;
+  cep: string | null;
+  uf: string | null;
+  numeros_sorte: number[] | null;
+  quantidade_numeros: number | null;
+}
+
 const ParticipanteDashboard = () => {
   const [documento, setDocumento] = useState("");
   const [isSearching, setIsSearching] = useState(false);
@@ -32,7 +49,7 @@ const ParticipanteDashboard = () => {
         throw error;
       }
 
-      return data;
+      return data as ParticipanteData | null;
     },
     enabled: Boolean(documento && isSearching),
   });

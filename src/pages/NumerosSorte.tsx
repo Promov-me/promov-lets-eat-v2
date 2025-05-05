@@ -8,6 +8,23 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { Ticket } from "lucide-react";
 
+// Define an interface for the participante data to include the quantidade_numeros property
+interface ParticipanteData {
+  id: string | null;
+  nome: string | null;
+  documento: string | null;
+  email: string | null;
+  telefone: string | null;
+  rua: string | null;
+  numero: string | null;
+  cidade: string | null;
+  complemento: string | null;
+  cep: string | null;
+  uf: string | null;
+  numeros_sorte: number[] | null;
+  quantidade_numeros: number | null;
+}
+
 const NumerosSorte = () => {
   const navigate = useNavigate();
   const [participanteId, setParticipanteId] = useState<string | null>(null);
@@ -51,7 +68,7 @@ const NumerosSorte = () => {
         throw error;
       }
 
-      return data;
+      return data as ParticipanteData | null;
     },
     enabled: Boolean(participanteDocumento),
   });
