@@ -46,13 +46,27 @@ serve(async (req) => {
       )
     }
 
-    // Buscar configuração atual
-    const { data: config, error: configError } = await supabaseClient
+    // Buscar configuração atual (se não existir, cria uma configuração padrão)
+    let { data: config, error: configError } = await supabaseClient
       .from('configuracao_campanha')
       .select('series_numericas')
-      .single()
+      .maybeSingle()
     
     if (configError) throw configError
+    
+    // Se não existir configuração, usa valor padrão de 1 série numérica
+    if (!config) {
+      // Tenta criar uma configuração padrão
+      const { error: insertError } = await supabaseClient
+        .from('configuracao_campanha')
+        .insert({ series_numericas: 1 })
+        
+      if (insertError) {
+        console.error('Erro ao criar configuração padrão:', insertError)
+      }
+      
+      config = { series_numericas: 1 }
+    }
 
     const maxNumber = config.series_numericas * 100000
 
