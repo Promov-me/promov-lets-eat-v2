@@ -22,7 +22,7 @@ interface ParticipanteData {
   cep: string | null;
   uf: string | null;
   numeros_sorte: number[] | null;
-  quantidade_numeros: number | null;
+  quantidade_numeros?: number | null; // Making this property optional with ?
 }
 
 const NumerosSorte = () => {
