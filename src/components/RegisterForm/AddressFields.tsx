@@ -2,6 +2,7 @@
 import React from "react";
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { MaskedInput } from "@/components/ui/masked-input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { UseFormReturn } from "react-hook-form";
 import { RegisterFormValues } from "./schema";
@@ -84,7 +85,16 @@ const AddressFields: React.FC<AddressFieldsProps> = ({ form }) => {
             <FormItem>
               <FormLabel>CEP*</FormLabel>
               <FormControl>
-                <Input placeholder="00000-000" {...field} />
+                <MaskedInput 
+                  mask="99999-999"
+                  placeholder="00000-000"
+                  {...field}
+                  onChange={(e) => {
+                    // Remove non-digit characters before saving value
+                    const value = e.target.value.replace(/\D/g, '');
+                    field.onChange(value);
+                  }}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>

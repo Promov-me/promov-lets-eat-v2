@@ -2,6 +2,7 @@
 import React from "react";
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { MaskedInput } from "@/components/ui/masked-input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { UseFormReturn } from "react-hook-form";
 import { RegisterFormValues } from "./schema";
@@ -76,7 +77,11 @@ const PersonalInfoFields: React.FC<PersonalInfoFieldsProps> = ({ form }) => {
             <FormItem>
               <FormLabel>Telefone*</FormLabel>
               <FormControl>
-                <Input placeholder="(00) 00000-0000" {...field} />
+                <MaskedInput 
+                  mask="(99) 99999-9999" 
+                  placeholder="(00) 00000-0000" 
+                  {...field} 
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -87,15 +92,30 @@ const PersonalInfoFields: React.FC<PersonalInfoFieldsProps> = ({ form }) => {
       <FormField
         control={form.control}
         name="documento"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>CPF/CNPJ*</FormLabel>
-            <FormControl>
-              <Input placeholder="Digite seu CPF ou CNPJ" {...field} />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
+        render={({ field }) => {
+          const isCPF = field.value.length <= 11;
+          const mask = isCPF ? "999.999.999-99" : "99.999.999/9999-99";
+          
+          return (
+            <FormItem>
+              <FormLabel>CPF/CNPJ*</FormLabel>
+              <FormControl>
+                <MaskedInput 
+                  mask={mask}
+                  maskChar={null}
+                  placeholder="Digite seu CPF ou CNPJ" 
+                  {...field}
+                  onChange={(e) => {
+                    // Remove non-digit characters before saving value
+                    const value = e.target.value.replace(/\D/g, '');
+                    field.onChange(value);
+                  }}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          );
+        }}
       />
     </>
   );
