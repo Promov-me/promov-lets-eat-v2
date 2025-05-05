@@ -100,8 +100,8 @@ const RegisterForm = () => {
         senha: "******" // Removendo senha por segurança nos logs
       });
       
-      // Get the Supabase anon key for authentication
-      const supabaseKey = supabase.supabaseKey;
+      // Use the Supabase project's publishable key directly
+      const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVvb3ZyeGZwanN5dnBrcWR4a29hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU4MzgwOTQsImV4cCI6MjA2MTQxNDA5NH0.7x9xrScO6VZdmT2YlwoCXHKS7I1e0CIW58xDIgf0N1w";
       
       // Usar a função edge do Supabase para cadastro
       const response = await fetch(`https://uoovrxfpjsyvpkqdxkoa.supabase.co/functions/v1/cadastro-participante`, {
@@ -109,8 +109,8 @@ const RegisterForm = () => {
         headers: {
           'Content-Type': 'application/json',
           // Add the required authorization header
-          'apikey': supabaseKey,
-          'Authorization': `Bearer ${supabaseKey}`
+          'apikey': SUPABASE_ANON_KEY,
+          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
         },
         body: JSON.stringify({
           nome: values.nome,
