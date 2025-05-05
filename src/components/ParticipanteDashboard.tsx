@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search } from "lucide-react";
+import { Search, Ticket } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 
@@ -50,6 +50,8 @@ const ParticipanteDashboard = () => {
     setIsSearching(true);
   };
 
+  const quantidadeCupons = participante?.numeros_sorte?.length || 0;
+
   return (
     <div className="space-y-6">
       <div className="bg-white p-6 rounded-lg shadow">
@@ -91,6 +93,10 @@ const ParticipanteDashboard = () => {
               <h3 className="font-medium text-lg">{participante.nome || "Participante"}</h3>
               <p className="text-sm text-gray-500">Documento: {participante.documento}</p>
               {participante.email && <p className="text-sm text-gray-500">Email: {participante.email}</p>}
+              <div className="flex items-center mt-2 text-sm text-blue-600">
+                <Ticket className="h-4 w-4 mr-1" />
+                <span>Quantidade de cupons: {quantidadeCupons}</span>
+              </div>
             </div>
 
             <div>

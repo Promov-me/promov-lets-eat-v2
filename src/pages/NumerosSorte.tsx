@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import { Ticket } from "lucide-react";
 
 const NumerosSorte = () => {
   const navigate = useNavigate();
@@ -65,6 +66,8 @@ const NumerosSorte = () => {
     });
   };
 
+  const quantidadeCupons = participante?.numeros_sorte?.length || 0;
+
   if (isLoading) {
     return (
       <div className="container mx-auto p-6 max-w-4xl">
@@ -105,6 +108,12 @@ const NumerosSorte = () => {
                 <div>
                   <p className="text-sm text-gray-500">Telefone</p>
                   <p className="font-medium">{participante.telefone || "Não informado"}</p>
+                </div>
+                <div className="md:col-span-2">
+                  <div className="flex items-center mt-2 text-blue-600">
+                    <Ticket className="h-5 w-5 mr-2" />
+                    <span className="font-medium">Quantidade de cupons: {quantidadeCupons}</span>
+                  </div>
                 </div>
               </div>
             </CardContent>
