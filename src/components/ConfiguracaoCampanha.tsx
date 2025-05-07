@@ -1,3 +1,4 @@
+
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
@@ -158,8 +159,14 @@ const ConfiguracaoCampanha = () => {
       setQuantidade("");
     },
     onError: (error: any) => {
-      // Verificar se é o erro específico de "Participante não cadastrado"
-      if (error.message === "Participante não cadastrado") {
+      // Verificar mensagens específicas de erro
+      if (error.message === "Documento não encontrado") {
+        toast({
+          title: "Documento não encontrado",
+          description: "Este documento não pertence a um participante cadastrado.",
+          variant: "destructive"
+        });
+      } else if (error.message === "Participante não cadastrado") {
         toast({
           title: "Participante não cadastrado",
           description: "Este documento não pertence a um participante cadastrado.",

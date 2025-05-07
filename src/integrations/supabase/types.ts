@@ -89,18 +89,21 @@ export type Database = {
           documento: string
           id: string
           numero: number
+          obs: string | null
         }
         Insert: {
           created_at?: string
           documento: string
           id?: string
           numero: number
+          obs?: string | null
         }
         Update: {
           created_at?: string
           documento?: string
           id?: string
           numero?: number
+          obs?: string | null
         }
         Relationships: []
       }

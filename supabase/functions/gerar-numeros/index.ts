@@ -60,7 +60,7 @@ serve(async (req) => {
       return new Response(
         JSON.stringify({
           success: false,
-          error: 'Participante não cadastrado'
+          error: 'Documento não encontrado'
         }),
         {
           status: 404,
@@ -109,12 +109,13 @@ serve(async (req) => {
       existingSet
     )
 
-    // Inserir números gerados
+    // Inserir números gerados com a observação
     const { error: insertError } = await supabaseClient
       .from('numeros_sorte')
       .insert(novosNumeros.map(numero => ({
         numero,
-        documento
+        documento,
+        obs: "Número gerado automaticamente"
       })))
     
     if (insertError) throw insertError
