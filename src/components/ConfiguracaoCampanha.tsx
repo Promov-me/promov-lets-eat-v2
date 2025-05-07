@@ -65,21 +65,54 @@ const ConfiguracaoCampanha = () => {
 
   const updateSeriesMutation = useMutation({
     mutationFn: async (series: number) => {
-      if (configData?.id === "default") {
-        // Se estamos usando a configuração padrão, tentar inserir em vez de atualizar
-        const { error } = await supabase
+      // Verificar se temos uma configuração válida primeiro
+      if (!configData) {
+        // Se não temos configuração, inserir uma nova
+        const { data, error } = await supabase
           .from("configuracao_campanha")
-          .insert({ series_numericas: series });
+          .insert({ series_numericas: series })
+          .select()
+          .maybeSingle();
           
         if (error) throw error;
+        return data;
       } else {
-        // Atualizar configuração existente
-        const { error } = await supabase
-          .from("configuracao_campanha")
-          .update({ series_numericas: series })
-          .eq("id", configData?.id);
-        
-        if (error) throw error;
+        // Se configData.id é "default", significa que não conseguimos obter um ID real
+        // Nesse caso, vamos tentar obter a configuração primeiro
+        if (configData.id === "default") {
+          // Verificar se existe uma configuração
+          const { data: existingConfig, error: fetchError } = await supabase
+            .from("configuracao_campanha")
+            .select("id")
+            .maybeSingle();
+          
+          if (fetchError) throw fetchError;
+          
+          if (existingConfig) {
+            // Atualizar configuração existente
+            const { error } = await supabase
+              .from("configuracao_campanha")
+              .update({ series_numericas: series })
+              .eq("id", existingConfig.id);
+            
+            if (error) throw error;
+          } else {
+            // Inserir nova configuração
+            const { error } = await supabase
+              .from("configuracao_campanha")
+              .insert({ series_numericas: series });
+            
+            if (error) throw error;
+          }
+        } else {
+          // Atualizar configuração existente com ID conhecido
+          const { error } = await supabase
+            .from("configuracao_campanha")
+            .update({ series_numericas: series })
+            .eq("id", configData.id);
+          
+          if (error) throw error;
+        }
       }
     },
     onSuccess: () => {
