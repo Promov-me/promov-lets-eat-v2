@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const NumberGenerationForm = ({ isLoading }: { isLoading: boolean }) => {
   const { toast } = useToast();
@@ -15,22 +16,24 @@ const NumberGenerationForm = ({ isLoading }: { isLoading: boolean }) => {
   const gerarNumerosMutation = useMutation({
     mutationFn: async ({ documento, quantidade }: { documento: string; quantidade: string }) => {
       try {
-        // Chamando a função Edge para gerar números
-        const response = await fetch('https://uoovrxfpjsyvpkqdxkoa.supabase.co/functions/v1/gerar-numeros', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ documento, quantidade: parseInt(quantidade) })
+        // Usar o client do Supabase para chamar a função Edge
+        const { data, error } = await supabase.functions.invoke('gerar-numeros', {
+          body: JSON.stringify({ 
+            documento, 
+            quantidade: parseInt(quantidade) 
+          })
         });
         
-        const result = await response.json();
-        
-        if (!response.ok) {
-          throw new Error(result.error || 'Erro ao gerar números');
+        if (error) {
+          console.error("Erro ao chamar função Edge:", error);
+          throw new Error(error.message || 'Erro ao gerar números');
         }
         
-        return result;
+        if (!data.success) {
+          throw new Error(data.error || 'Erro ao gerar números');
+        }
+        
+        return data;
       } catch (error) {
         console.error("Erro completo:", error);
         throw error;
@@ -46,13 +49,13 @@ const NumberGenerationForm = ({ isLoading }: { isLoading: boolean }) => {
     },
     onError: (error: any) => {
       // Verificar mensagens específicas de erro
-      if (error.message === "Documento não encontrado") {
+      if (error.message?.includes("Documento não encontrado")) {
         toast({
           title: "Documento não encontrado",
           description: "Este documento não pertence a um participante cadastrado.",
           variant: "destructive"
         });
-      } else if (error.message === "Participante não cadastrado") {
+      } else if (error.message?.includes("Participante não cadastrado")) {
         toast({
           title: "Participante não cadastrado",
           description: "Este documento não pertence a um participante cadastrado.",

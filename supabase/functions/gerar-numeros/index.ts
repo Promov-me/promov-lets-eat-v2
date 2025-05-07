@@ -27,16 +27,28 @@ serve(async (req) => {
   }
 
   try {
+    // Criar cliente do Supabase usando informações da request
     const supabaseClient = createClient(
+      // Usar o mesmo projeto Supabase
       'https://uoovrxfpjsyvpkqdxkoa.supabase.co',
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVvb3ZyeGZwanN5dnBrcWR4a29hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU4MzgwOTQsImV4cCI6MjA2MTQxNDA5NH0.7x9xrScO6VZdmT2YlwoCXHKS7I1e0CIW58xDIgf0N1w'
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVvb3ZyeGZwanN5dnBrcWR4a29hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU4MzgwOTQsImV4cCI6MjA2MTQxNDA5NH0.7x9xrScO6VZdmT2YlwoCXHKS7I1e0CIW58xDIgf0N1w',
+      {
+        global: {
+          headers: {
+            Authorization: req.headers.get('Authorization') || '',
+          },
+        },
+      }
     )
 
     const { documento, quantidade } = await req.json()
+    
+    console.log("Recebida requisição para gerar números:", { documento, quantidade });
 
     if (!documento || !quantidade) {
       return new Response(
         JSON.stringify({ 
+          success: false, 
           error: 'Documento e quantidade são obrigatórios' 
         }), 
         { 
@@ -54,6 +66,8 @@ serve(async (req) => {
       
     if (participanteError) throw participanteError
     
+    console.log("Resultado da consulta de participante:", participantes);
+    
     // Se o participante não estiver cadastrado, retornar erro
     if (!participantes || participantes.length === 0) {
       return new Response(
@@ -68,28 +82,20 @@ serve(async (req) => {
       )
     }
 
-    // Buscar configuração atual (se não existir, cria uma configuração padrão)
-    let { data: configs, error: configError } = await supabaseClient
+    // Buscar configuração atual
+    const { data: configs, error: configError } = await supabaseClient
       .from('configuracao_campanha')
       .select('series_numericas')
     
     if (configError) throw configError
     
-    // Se não existir configuração ou múltiplas configurações, usar valor padrão
-    const config = configs && configs.length > 0 ? configs[0] : { series_numericas: 1 };
+    console.log("Configuração da campanha:", configs);
     
     // Se não existir configuração, tenta criar uma configuração padrão
-    if (!configs || configs.length === 0) {
-      const { error: insertError } = await supabaseClient
-        .from('configuracao_campanha')
-        .insert({ series_numericas: 1 })
-        
-      if (insertError) {
-        console.error('Erro ao criar configuração padrão:', insertError)
-      }
-    }
-
-    const maxNumber = config.series_numericas * 100000
+    const config = configs && configs.length > 0 ? configs[0] : { series_numericas: 1 };
+    
+    const maxNumber = config.series_numericas * 100000;
+    console.log("Máximo número disponível:", maxNumber);
 
     // Buscar números existentes
     const { data: existingNumbers, error: numbersError } = await supabaseClient
@@ -98,14 +104,17 @@ serve(async (req) => {
     
     if (numbersError) throw numbersError
 
-    const existingSet = new Set(existingNumbers?.map(n => n.numero) || [])
+    const existingSet = new Set(existingNumbers?.map(n => n.numero) || []);
+    console.log("Total de números existentes:", existingSet.size);
 
     // Gerar novos números
     const novosNumeros = generateUniqueRandomNumbers(
-      parseInt(quantidade), 
+      parseInt(quantidade.toString()), 
       maxNumber, 
       existingSet
-    )
+    );
+    
+    console.log("Novos números gerados:", novosNumeros);
 
     // Inserir números gerados com a observação
     const { error: insertError } = await supabaseClient
@@ -113,10 +122,13 @@ serve(async (req) => {
       .insert(novosNumeros.map(numero => ({
         numero,
         documento,
-        obs: "Número gerado automaticamente"
+        obs: "Número gerado manualmente"
       })))
     
-    if (insertError) throw insertError
+    if (insertError) {
+      console.error("Erro ao inserir números:", insertError);
+      throw insertError;
+    }
 
     return new Response(
       JSON.stringify({ 
@@ -129,11 +141,11 @@ serve(async (req) => {
     )
 
   } catch (error) {
-    console.error('Error:', error)
+    console.error('Error:', error);
     return new Response(
       JSON.stringify({ 
         success: false, 
-        error: error.message 
+        error: error.message || 'Erro interno do servidor'
       }), 
       { 
         status: 500,

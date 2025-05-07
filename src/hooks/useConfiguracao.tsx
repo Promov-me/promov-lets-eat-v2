@@ -20,7 +20,9 @@ export const useConfiguracao = () => {
       try {
         const { data, error } = await supabase
           .from("configuracao_campanha")
-          .select("*");
+          .select("*")
+          .order('created_at', { ascending: false })
+          .limit(1);
         
         if (error) {
           console.error("Erro ao buscar configuração:", error);
@@ -42,6 +44,7 @@ export const useConfiguracao = () => {
           
           if (newConfig && newConfig.length > 0) {
             setSeriesNumericas(newConfig[0].series_numericas);
+            setConfigLoaded(true);
             return newConfig[0];
           }
         }
@@ -49,15 +52,17 @@ export const useConfiguracao = () => {
         if (data && data.length > 0) {
           console.log("Configuração encontrada:", data[0]);
           setSeriesNumericas(data[0].series_numericas);
+          setConfigLoaded(true);
           return data[0];
         }
         
-        return null;
+        // Caso de fallback, se algo der errado
+        setConfigLoaded(true);
+        return { series_numericas: 1 };
       } catch (err) {
         console.error("Erro ao buscar configuração:", err);
-        return null;
-      } finally {
         setConfigLoaded(true);
+        return { series_numericas: 1 };
       }
     }
   });
