@@ -22,16 +22,15 @@ export default async function handler(req: Request) {
     }
 
     // Verificar se o participante já está cadastrado
-    const { data: participante, error: participanteError } = await supabase
+    const { data: participantes, error: participanteError } = await supabase
       .from('participantes')
       .select('documento')
-      .eq('documento', documento)
-      .maybeSingle();
+      .eq('documento', documento);
       
     if (participanteError) throw participanteError;
     
     // Se o participante não estiver cadastrado, retornar erro
-    if (!participante) {
+    if (!participantes || participantes.length === 0) {
       return new Response(JSON.stringify({
         success: false,
         error: 'Participante não cadastrado'
@@ -42,16 +41,15 @@ export default async function handler(req: Request) {
     }
 
     // Buscar configuração atual
-    const { data: config, error: configError } = await supabase
+    const { data: configs, error: configError } = await supabase
       .from('configuracao_campanha')
-      .select('series_numericas')
-      .maybeSingle();
+      .select('series_numericas');
 
     if (configError) throw configError;
     
     // Se não houver configuração, usar o valor padrão
-    const seriesNumericas = config?.series_numericas || 1;
-    const maxNumber = seriesNumericas * 100000;
+    const config = configs && configs.length > 0 ? configs[0] : { series_numericas: 1 };
+    const maxNumber = config.series_numericas * 100000;
 
     // Buscar números existentes
     const { data: existingNumbers, error: numbersError } = await supabase

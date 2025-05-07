@@ -47,16 +47,15 @@ serve(async (req) => {
     }
     
     // Verificar se o participante já está cadastrado
-    const { data: participante, error: participanteError } = await supabaseClient
+    const { data: participantes, error: participanteError } = await supabaseClient
       .from('participantes')
       .select('documento')
       .eq('documento', documento)
-      .maybeSingle()
       
     if (participanteError) throw participanteError
     
     // Se o participante não estiver cadastrado, retornar erro
-    if (!participante) {
+    if (!participantes || participantes.length === 0) {
       return new Response(
         JSON.stringify({
           success: false,
@@ -70,16 +69,17 @@ serve(async (req) => {
     }
 
     // Buscar configuração atual (se não existir, cria uma configuração padrão)
-    let { data: config, error: configError } = await supabaseClient
+    let { data: configs, error: configError } = await supabaseClient
       .from('configuracao_campanha')
       .select('series_numericas')
-      .maybeSingle()
     
     if (configError) throw configError
     
-    // Se não existir configuração, usa valor padrão de 1 série numérica
-    if (!config) {
-      // Tenta criar uma configuração padrão
+    // Se não existir configuração ou múltiplas configurações, usar valor padrão
+    const config = configs && configs.length > 0 ? configs[0] : { series_numericas: 1 };
+    
+    // Se não existir configuração, tenta criar uma configuração padrão
+    if (!configs || configs.length === 0) {
       const { error: insertError } = await supabaseClient
         .from('configuracao_campanha')
         .insert({ series_numericas: 1 })
@@ -87,8 +87,6 @@ serve(async (req) => {
       if (insertError) {
         console.error('Erro ao criar configuração padrão:', insertError)
       }
-      
-      config = { series_numericas: 1 }
     }
 
     const maxNumber = config.series_numericas * 100000

@@ -20,8 +20,7 @@ export const useConfiguracao = () => {
       try {
         const { data, error } = await supabase
           .from("configuracao_campanha")
-          .select("*")
-          .maybeSingle();
+          .select("*");
         
         if (error) {
           console.error("Erro ao buscar configuração:", error);
@@ -29,31 +28,31 @@ export const useConfiguracao = () => {
         }
         
         // Se não existir configuração, criar uma
-        if (!data) {
+        if (!data || data.length === 0) {
           console.log("Configuração não encontrada, criando padrão");
           const { data: newConfig, error: insertError } = await supabase
             .from("configuracao_campanha")
             .insert({ series_numericas: 1 })
-            .select()
-            .single();
+            .select();
           
           if (insertError) {
             console.error("Erro ao inserir configuração padrão:", insertError);
             throw insertError;
           }
           
-          if (newConfig) {
-            setSeriesNumericas(newConfig.series_numericas);
-            return newConfig;
+          if (newConfig && newConfig.length > 0) {
+            setSeriesNumericas(newConfig[0].series_numericas);
+            return newConfig[0];
           }
         }
         
-        if (data) {
-          console.log("Configuração encontrada:", data);
-          setSeriesNumericas(data.series_numericas);
+        if (data && data.length > 0) {
+          console.log("Configuração encontrada:", data[0]);
+          setSeriesNumericas(data[0].series_numericas);
+          return data[0];
         }
         
-        return data;
+        return null;
       } catch (err) {
         console.error("Erro ao buscar configuração:", err);
         return null;
