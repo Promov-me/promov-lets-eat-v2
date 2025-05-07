@@ -1,4 +1,3 @@
-
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
@@ -27,36 +26,40 @@ const ConfiguracaoCampanha = () => {
           .select("*")
           .maybeSingle();
         
-        if (error) throw error;
+        if (error) {
+          console.error("Erro ao buscar configuração:", error);
+          throw error;
+        }
         
         // Se não existir configuração, criar uma
         if (!data) {
+          console.log("Configuração não encontrada, criando padrão");
           const { data: newConfig, error: insertError } = await supabase
             .from("configuracao_campanha")
             .insert({ series_numericas: 1 })
             .select()
-            .maybeSingle();
+            .single();
           
-          if (insertError) throw insertError;
+          if (insertError) {
+            console.error("Erro ao inserir configuração padrão:", insertError);
+            throw insertError;
+          }
           
           if (newConfig) {
             setSeriesNumericas(newConfig.series_numericas);
             return newConfig;
           }
-          
-          // Caso não consiga inserir, retorna um objeto padrão
-          return { id: "default", series_numericas: 1 };
         }
         
         if (data) {
+          console.log("Configuração encontrada:", data);
           setSeriesNumericas(data.series_numericas);
         }
         
         return data;
       } catch (err) {
         console.error("Erro ao buscar configuração:", err);
-        // Retornar um valor padrão para evitar problemas de renderização
-        return { id: "default", series_numericas: 1 };
+        return null;
       } finally {
         setConfigLoaded(true);
       }
@@ -65,55 +68,45 @@ const ConfiguracaoCampanha = () => {
 
   const updateSeriesMutation = useMutation({
     mutationFn: async (series: number) => {
-      // Verificar se temos uma configuração válida primeiro
-      if (!configData) {
-        // Se não temos configuração, inserir uma nova
-        const { data, error } = await supabase
+      console.log("Atualizando séries para:", series);
+      
+      // Verificar se já existe uma configuração
+      const { data: existingConfig, error: fetchError } = await supabase
+        .from("configuracao_campanha")
+        .select("id")
+        .maybeSingle();
+      
+      if (fetchError) {
+        console.error("Erro ao verificar configuração existente:", fetchError);
+        throw fetchError;
+      }
+      
+      if (existingConfig) {
+        // Atualizar configuração existente
+        console.log("Atualizando configuração existente com ID:", existingConfig.id);
+        const { error: updateError } = await supabase
           .from("configuracao_campanha")
-          .insert({ series_numericas: series })
-          .select()
-          .maybeSingle();
-          
-        if (error) throw error;
-        return data;
+          .update({ series_numericas: series })
+          .eq("id", existingConfig.id);
+        
+        if (updateError) {
+          console.error("Erro ao atualizar configuração:", updateError);
+          throw updateError;
+        }
       } else {
-        // Se configData.id é "default", significa que não conseguimos obter um ID real
-        // Nesse caso, vamos tentar obter a configuração primeiro
-        if (configData.id === "default") {
-          // Verificar se existe uma configuração
-          const { data: existingConfig, error: fetchError } = await supabase
-            .from("configuracao_campanha")
-            .select("id")
-            .maybeSingle();
-          
-          if (fetchError) throw fetchError;
-          
-          if (existingConfig) {
-            // Atualizar configuração existente
-            const { error } = await supabase
-              .from("configuracao_campanha")
-              .update({ series_numericas: series })
-              .eq("id", existingConfig.id);
-            
-            if (error) throw error;
-          } else {
-            // Inserir nova configuração
-            const { error } = await supabase
-              .from("configuracao_campanha")
-              .insert({ series_numericas: series });
-            
-            if (error) throw error;
-          }
-        } else {
-          // Atualizar configuração existente com ID conhecido
-          const { error } = await supabase
-            .from("configuracao_campanha")
-            .update({ series_numericas: series })
-            .eq("id", configData.id);
-          
-          if (error) throw error;
+        // Inserir nova configuração
+        console.log("Inserindo nova configuração");
+        const { error: insertError } = await supabase
+          .from("configuracao_campanha")
+          .insert({ series_numericas: series });
+        
+        if (insertError) {
+          console.error("Erro ao inserir configuração:", insertError);
+          throw insertError;
         }
       }
+      
+      return { success: true };
     },
     onSuccess: () => {
       toast({
