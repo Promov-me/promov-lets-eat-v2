@@ -1,4 +1,3 @@
-
 #!/usr/bin/env node
 import { supabase } from "../src/integrations/supabase/client";
 import fs from 'fs';
