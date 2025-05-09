@@ -12,13 +12,19 @@ import path from 'path';
 // Configurar cliente Supabase para a nova instância
 const supabaseUrl = 'NOVA_URL_SUPABASE';
 const supabaseKey = 'NOVA_CHAVE_ANON';
-const supabase = createClient(supabaseUrl, supabaseKey);
+const supabase = createClient(supabaseUrl, supabaseKey, {
+  auth: {
+    persistSession: false,
+    autoRefreshToken: false,
+    storage: undefined,
+  },
+});
 
 type ParsedRow = Record<string, any>;
 
 async function importTableData(tableName: string): Promise<void> {
   try {
-    const filePath = path.join('./data-export', `${tableName}.csv`);
+    const filePath = path.join(process.cwd(), 'data-export', `${tableName}.csv`);
     
     if (!fs.existsSync(filePath)) {
       console.log(`Arquivo ${filePath} não encontrado. Pulando importação.`);

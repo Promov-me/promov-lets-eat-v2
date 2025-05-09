@@ -1,5 +1,5 @@
 
-import { supabase } from "../src/integrations/supabase/client";
+import { createClient } from '@supabase/supabase-js';
 import fs from 'fs';
 import path from 'path';
 
@@ -8,6 +8,19 @@ import path from 'path';
  * Para usar: npm install papaparse fs
  * Depois: npx ts-node scripts/export-data.ts
  */
+
+// Configuração do cliente Supabase para ambiente Node.js
+const SUPABASE_URL = "https://uoovrxfpjsyvpkqdxkoa.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVvb3ZyeGZwanN5dnBrcWR4a29hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU4MzgwOTQsImV4cCI6MjA2MTQxNDA5NH0.7x9xrScO6VZdmT2YlwoCXHKS7I1e0CIW58xDIgf0N1w";
+
+// Criar cliente Supabase específico para ambiente Node.js
+const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+  auth: {
+    persistSession: false,
+    autoRefreshToken: false,
+    storage: undefined,
+  },
+});
 
 type Table = {
   name: string;
