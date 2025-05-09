@@ -1,0 +1,126 @@
+
+import { createClient } from '@supabase/supabase-js';
+import fs from 'fs';
+import path from 'path';
+
+/**
+ * Script para importar dados dos arquivos CSV para as tabelas Supabase
+ * Para usar: npm install @supabase/supabase-js papaparse
+ * Depois: npx ts-node import-data.ts
+ */
+
+// Configurar cliente Supabase para a nova instância
+const supabaseUrl = 'NOVA_URL_SUPABASE';
+const supabaseKey = 'NOVA_CHAVE_ANON';
+const supabase = createClient(supabaseUrl, supabaseKey);
+
+type ParsedRow = Record<string, any>;
+
+async function importTableData(tableName: string): Promise<void> {
+  try {
+    const filePath = path.join('./data-export', `${tableName}.csv`);
+    
+    if (!fs.existsSync(filePath)) {
+      console.log(`Arquivo ${filePath} não encontrado. Pulando importação.`);
+      return;
+    }
+    
+    console.log(`Importando dados para a tabela ${tableName}...`);
+    
+    const fileContent = fs.readFileSync(filePath, 'utf8');
+    const rows = fileContent.split('\n');
+    
+    if (rows.length <= 1) {
+      console.log(`Nenhum dado encontrado para importar na tabela ${tableName}`);
+      return;
+    }
+    
+    const headers = rows[0].split(',');
+    const dataRows = rows.slice(1).filter(row => row.trim() !== '');
+    
+    const parsedData: ParsedRow[] = dataRows.map(row => {
+      // Tratamento básico para lidar com campos entre aspas
+      const values: string[] = [];
+      let inQuotes = false;
+      let currentValue = '';
+      
+      for (let i = 0; i < row.length; i++) {
+        const char = row[i];
+        
+        if (char === '"' && (i === 0 || row[i-1] !== '\\')) {
+          inQuotes = !inQuotes;
+        } else if (char === ',' && !inQuotes) {
+          values.push(currentValue);
+          currentValue = '';
+        } else {
+          currentValue += char;
+        }
+      }
+      
+      values.push(currentValue);
+      
+      const rowObject: ParsedRow = {};
+      headers.forEach((header, index) => {
+        let value = values[index] || null;
+        
+        // Tratar strings JSON
+        if (value && (value.startsWith('{') || value.startsWith('['))) {
+          try {
+            value = JSON.parse(value);
+          } catch (e) {
+            // Se não for um JSON válido, manter como string
+          }
+        }
+        
+        // Converter valores numéricos
+        else if (value && !isNaN(Number(value)) && value.trim() !== '') {
+          value = Number(value);
+        }
+        
+        rowObject[header] = value;
+      });
+      
+      return rowObject;
+    });
+    
+    // Importar em lotes de 100 para evitar problemas com limites de tamanho
+    const batchSize = 100;
+    for (let i = 0; i < parsedData.length; i += batchSize) {
+      const batch = parsedData.slice(i, i + batchSize);
+      const { error } = await supabase.from(tableName).insert(batch);
+      
+      if (error) {
+        console.error(`Erro ao importar lote para ${tableName}:`, error);
+      } else {
+        console.log(`Importado lote ${i/batchSize + 1}/${Math.ceil(parsedData.length/batchSize)} para ${tableName}`);
+      }
+    }
+    
+    console.log(`Importação concluída para tabela ${tableName}. Total: ${parsedData.length} registros`);
+    
+  } catch (err) {
+    console.error(`Erro ao importar tabela ${tableName}:`, err);
+  }
+}
+
+async function importAllData() {
+  console.log('Iniciando importação de dados...');
+  
+  // Ordem importante para respeitar chaves estrangeiras
+  const tables = [
+    'admins',
+    'configuracao_campanha',
+    'participantes',
+    'admin_sessions', // Depende de admins
+    'numeros_sorte',   // Depende de participantes
+    'vendas'
+  ];
+  
+  for (const table of tables) {
+    await importTableData(table);
+  }
+  
+  console.log('Importação concluída!');
+}
+
+importAllData();

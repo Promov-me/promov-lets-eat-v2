@@ -184,7 +184,7 @@ export type Database = {
           imagemCupom: string | null
           itemProcessado: string | null
           loja: string | null
-          valorTotal: string | null
+          valorTotal: number | null
         }
         Insert: {
           created_at?: string
@@ -196,7 +196,7 @@ export type Database = {
           imagemCupom?: string | null
           itemProcessado?: string | null
           loja?: string | null
-          valorTotal?: string | null
+          valorTotal?: number | null
         }
         Update: {
           created_at?: string
@@ -208,7 +208,7 @@ export type Database = {
           imagemCupom?: string | null
           itemProcessado?: string | null
           loja?: string | null
-          valorTotal?: string | null
+          valorTotal?: number | null
         }
         Relationships: []
       }
