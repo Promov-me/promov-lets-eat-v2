@@ -6,7 +6,7 @@ import path from 'path';
 /**
  * Script para importar dados dos arquivos CSV para as tabelas Supabase
  * Para usar: npm install @supabase/supabase-js papaparse
- * Depois: npx ts-node import-data.ts
+ * Depois: npx ts-node scripts/import-data.ts
  */
 
 // Configurar cliente Supabase para a nova instância
@@ -111,9 +111,9 @@ async function importAllData() {
     'admins',
     'configuracao_campanha',
     'participantes',
+    'numeros_sorte',
+    'vendas',
     'admin_sessions', // Depende de admins
-    'numeros_sorte',   // Depende de participantes
-    'vendas'
   ];
   
   for (const table of tables) {

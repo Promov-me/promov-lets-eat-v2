@@ -6,7 +6,7 @@
 CREATE TABLE IF NOT EXISTS public.admins (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
-  email TEXT NOT NULL,
+  email TEXT NOT NULL UNIQUE,
   password TEXT NOT NULL
 );
 
@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS public.configuracao_campanha (
 CREATE TABLE IF NOT EXISTS public.participantes (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   data_cadastro TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
-  documento TEXT NOT NULL,
+  documento TEXT NOT NULL UNIQUE,
   nome TEXT,
   email TEXT,
   telefone TEXT,
@@ -162,11 +162,7 @@ BEGIN
         admin_record.id, 
         token, 
         now() + interval '24 hours'
-    )
-    ON CONFLICT (admin_id) 
-    DO UPDATE SET 
-        token = EXCLUDED.token,
-        expires_at = EXCLUDED.expires_at;
+    );
     
     RETURN json_build_object(
         'success', TRUE,
@@ -203,16 +199,15 @@ FOR EACH ROW
 EXECUTE FUNCTION public.update_participante_quantidade_numeros();
 
 -- Restrições e Índices
-ALTER TABLE admin_sessions ADD CONSTRAINT admin_sessions_admin_id_key UNIQUE (admin_id);
 CREATE INDEX IF NOT EXISTS idx_numeros_sorte_documento ON numeros_sorte (documento);
 CREATE INDEX IF NOT EXISTS idx_participantes_documento ON participantes (documento);
 
--- Inserir admin inicial (opcional - ajuste as credenciais conforme necessário)
+-- Inserir admin inicial (apenas se não existir)
 INSERT INTO public.admins (email, password)
-VALUES ('admin@exemplo.com', 'senha_segura') 
+VALUES ('admin@exemplo.com', 'senha_segura')
 ON CONFLICT (email) DO NOTHING;
 
--- Inserir configuração inicial (opcional)
+-- Inserir configuração inicial (se tabela estiver vazia)
 INSERT INTO public.configuracao_campanha (series_numericas)
-VALUES (1)
-ON CONFLICT (id) DO NOTHING;
+SELECT 1
+WHERE NOT EXISTS (SELECT 1 FROM public.configuracao_campanha LIMIT 1);

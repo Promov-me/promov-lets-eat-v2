@@ -1,11 +1,12 @@
 
 import { supabase } from "../src/integrations/supabase/client";
 import fs from 'fs';
+import path from 'path';
 
 /**
  * Script para exportar dados das tabelas para arquivos CSV
- * Para usar: npm install papaparse
- * Depois: npx ts-node export-data.ts
+ * Para usar: npm install papaparse fs
+ * Depois: npx ts-node scripts/export-data.ts
  */
 
 type Table = {
@@ -67,11 +68,12 @@ async function exportTableData(tableName: string, columns: string[]): Promise<vo
     const csvContent = [header, ...rows].join('\n');
     
     // Criar diretório de exportação se não existir
-    if (!fs.existsSync('./data-export')) {
-      fs.mkdirSync('./data-export');
+    const exportDir = path.join('.', 'data-export');
+    if (!fs.existsSync(exportDir)) {
+      fs.mkdirSync(exportDir);
     }
     
-    fs.writeFileSync(`./data-export/${tableName}.csv`, csvContent);
+    fs.writeFileSync(path.join(exportDir, `${tableName}.csv`), csvContent);
     console.log(`Dados da tabela ${tableName} exportados com sucesso! Total: ${data.length} registros`);
     
   } catch (err) {

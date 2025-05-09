@@ -18,11 +18,22 @@ Este documento contém instruções para migrar a estrutura do banco de dados pa
 
 3. **Migração de Dados (Opções)**
    
-   **Opção 1: Exportar/Importar CSV**
+   **Opção 1: Usando os scripts de exportação/importação**
+   - Execute o script `export-data.ts` na instância original:
+     ```
+     npx ts-node scripts/export-data.ts
+     ```
+   - Atualize as credenciais no arquivo `import-data.ts` com a nova URL e chave do Supabase
+   - Execute o script `import-data.ts` para importar os dados na nova instância:
+     ```
+     npx ts-node scripts/import-data.ts
+     ```
+
+   **Opção 2: Exportar/Importar CSV manualmente**
    - Na instância original, exporte os dados de cada tabela para arquivos CSV
    - No novo Supabase, importe os dados das tabelas a partir dos arquivos CSV
 
-   **Opção 2: Usando pgAdmin ou outra ferramenta**
+   **Opção 3: Usando pgAdmin ou outra ferramenta**
    - Conecte-se a ambas as bases usando pgAdmin
    - Use a funcionalidade de backup/restore para migrar os dados
 
@@ -48,3 +59,4 @@ Após a migração, verifique:
 - O script `migration-schema.sql` cria apenas a estrutura do banco de dados, não migra os dados
 - As credenciais de admin incluídas são apenas de exemplo - altere-as após a migração
 - Pode ser necessário ajustar os controles de acesso e políticas RLS de acordo com suas necessidades
+- Se encontrar erros ao executar os scripts, verifique se todas as dependências estão instaladas
