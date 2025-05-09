@@ -5,7 +5,7 @@ import path from 'path';
 
 /**
  * Script para exportar dados das tabelas para arquivos CSV
- * Para usar: npm install papaparse fs
+ * Para usar: npm install @supabase/supabase-js fs path
  * Depois: npx ts-node scripts/export-data.ts
  */
 
@@ -104,4 +104,5 @@ async function exportAllData() {
   console.log('Exportação concluída!');
 }
 
+// Executar a função principal
 exportAllData();

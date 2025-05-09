@@ -129,4 +129,5 @@ async function importAllData() {
   console.log('Importação concluída!');
 }
 
+// Executar a função principal
 importAllData();
