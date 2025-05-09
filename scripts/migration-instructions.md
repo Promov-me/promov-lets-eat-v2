@@ -59,4 +59,5 @@ Após a migração, verifique:
 - O script `migration-schema.sql` cria apenas a estrutura do banco de dados, não migra os dados
 - As credenciais de admin incluídas são apenas de exemplo - altere-as após a migração
 - Pode ser necessário ajustar os controles de acesso e políticas RLS de acordo com suas necessidades
+- A ordem de importação das tabelas é importante para respeitar as chaves estrangeiras
 - Se encontrar erros ao executar os scripts, verifique se todas as dependências estão instaladas

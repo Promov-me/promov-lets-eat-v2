@@ -68,7 +68,7 @@ CREATE TABLE IF NOT EXISTS public.vendas (
   valorTotal NUMERIC
 );
 
--- Views
+-- Correção da view - Manteremos o nome da coluna igual ao que está definido na seleção
 CREATE OR REPLACE VIEW public.numeros_cada_participante AS
 SELECT
   p.id,
@@ -156,7 +156,7 @@ BEGIN
     -- Gerar um token simples (em produção usaria algo mais seguro)
     token := encode(digest(admin_record.id::text || now()::text, 'sha256'), 'hex');
     
-    -- Inserir ou atualizar o token na tabela de sessões de administrador
+    -- Inserir o token na tabela de sessões de administrador
     INSERT INTO admin_sessions (admin_id, token, expires_at)
     VALUES (
         admin_record.id, 

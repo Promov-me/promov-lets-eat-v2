@@ -5,7 +5,7 @@ import path from 'path';
 
 /**
  * Script para importar dados dos arquivos CSV para as tabelas Supabase
- * Para usar: npm install @supabase/supabase-js papaparse
+ * Para usar: npm install @supabase/supabase-js fs path
  * Depois: npx ts-node scripts/import-data.ts
  */
 
