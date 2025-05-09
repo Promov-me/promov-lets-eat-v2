@@ -105,4 +105,7 @@ async function exportAllData() {
 }
 
 // Executar a função principal
-exportAllData();
+// Verificamos o ambiente - não executar automaticamente se estiver importado em outro script
+if (require.main === module) {
+  exportAllData();
+}

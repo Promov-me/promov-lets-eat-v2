@@ -130,4 +130,7 @@ async function importAllData() {
 }
 
 // Executar a função principal
-importAllData();
+// Verificamos o ambiente - não executar automaticamente se estiver importado em outro script
+if (require.main === module) {
+  importAllData();
+}
