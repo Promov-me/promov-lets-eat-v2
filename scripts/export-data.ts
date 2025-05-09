@@ -1,4 +1,5 @@
 
+#!/usr/bin/env node
 import { supabase } from "../src/integrations/supabase/client";
 import fs from 'fs';
 import path from 'path';
@@ -68,7 +69,7 @@ async function exportTableData(tableName: string, columns: string[]): Promise<vo
     const csvContent = [header, ...rows].join('\n');
     
     // Criar diretório de exportação se não existir
-    const exportDir = path.join('.', 'data-export');
+    const exportDir = path.join(process.cwd(), 'data-export');
     if (!fs.existsSync(exportDir)) {
       fs.mkdirSync(exportDir);
     }
