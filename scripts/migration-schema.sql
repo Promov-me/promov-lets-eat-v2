@@ -68,7 +68,7 @@ CREATE TABLE IF NOT EXISTS public.vendas (
   valorTotal NUMERIC
 );
 
--- Correção da view - Manteremos o nome da coluna igual ao que está definido na seleção
+-- Crie a view após todas as tabelas
 CREATE OR REPLACE VIEW public.numeros_cada_participante AS
 SELECT
   p.id,
