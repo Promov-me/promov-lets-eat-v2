@@ -1,26 +1,22 @@
 
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Link } from "react-router-dom";
 import { loginSchema, LoginFormValues } from "./schema";
-import { loginUser } from "./LoginService";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { AlertCircle } from "lucide-react";
+import { loginParticipant } from "./LoginService";
 import ResetPasswordForm from "./ResetPasswordForm";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const LoginForm = () => {
   const [isLoading, setIsLoading] = useState(false);
-  const navigate = useNavigate();
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [tab, setTab] = useState<"login" | "reset">("login");
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -32,71 +28,86 @@ const LoginForm = () => {
 
   const onSubmit = async (values: LoginFormValues) => {
     setIsLoading(true);
+    setErrorMessage(null);
+
     try {
-      const participante = await loginUser(values);
-      if (participante) {
-        // Redirecionar para a página de números
-        navigate("/numeros");
+      const result = await loginParticipant(values);
+      if (!result.success) {
+        setErrorMessage(result.error || "Erro ao fazer login");
       }
     } catch (error) {
       console.error("Erro ao fazer login:", error);
+      setErrorMessage("Ocorreu um erro ao processar seu login. Tente novamente.");
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <>
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          <FormField
-            control={form.control}
-            name="documento"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>CPF/CNPJ</FormLabel>
-                <FormControl>
-                  <Input placeholder="Digite seu CPF ou CNPJ" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="senha"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Senha</FormLabel>
-                <FormControl>
-                  <Input type="password" placeholder="Digite sua senha" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading ? "Entrando..." : "Entrar"}
-          </Button>
-          
-          <div className="text-center mt-4">
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button variant="link" className="text-sm text-primary hover:text-primary/80" type="button">
-                  Esqueci minha senha
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle className="text-center">Recuperação de Senha</DialogTitle>
-                </DialogHeader>
-                <ResetPasswordForm />
-              </DialogContent>
-            </Dialog>
-          </div>
-        </form>
-      </Form>
-    </>
+    <div>
+      <Tabs value={tab} onValueChange={(value) => setTab(value as "login" | "reset")}>
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="login">Login</TabsTrigger>
+          <TabsTrigger value="reset">Esqueci minha senha</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="login">
+          {errorMessage && (
+            <Alert variant="destructive" className="mb-4">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>{errorMessage}</AlertDescription>
+            </Alert>
+          )}
+
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <FormField
+                control={form.control}
+                name="documento"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>CPF/CNPJ</FormLabel>
+                    <FormControl>
+                      <Input 
+                        placeholder="Digite seu CPF ou CNPJ" 
+                        {...field} 
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="senha"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Senha</FormLabel>
+                    <FormControl>
+                      <Input 
+                        type="password" 
+                        placeholder="Digite sua senha" 
+                        {...field} 
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <Button type="submit" className="w-full" disabled={isLoading}>
+                {isLoading ? "Entrando..." : "Entrar"}
+              </Button>
+            </form>
+          </Form>
+        </TabsContent>
+        
+        <TabsContent value="reset">
+          <ResetPasswordForm onBackToLogin={() => setTab("login")} />
+        </TabsContent>
+      </Tabs>
+    </div>
   );
 };
 

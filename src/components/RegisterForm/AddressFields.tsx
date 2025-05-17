@@ -2,7 +2,6 @@
 import React from "react";
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { MaskedInput } from "@/components/ui/masked-input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { UseFormReturn } from "react-hook-form";
 import { RegisterFormValues } from "./schema";
@@ -77,30 +76,7 @@ const AddressFields: React.FC<AddressFieldsProps> = ({ form }) => {
         />
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <FormField
-          control={form.control}
-          name="cep"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>CEP*</FormLabel>
-              <FormControl>
-                <MaskedInput 
-                  mask="99999-999"
-                  placeholder="00000-000"
-                  {...field}
-                  onChange={(e) => {
-                    // Remove non-digit characters before saving value
-                    const value = e.target.value.replace(/\D/g, '');
-                    field.onChange(value);
-                  }}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <FormField
           control={form.control}
           name="cidade"
@@ -123,7 +99,7 @@ const AddressFields: React.FC<AddressFieldsProps> = ({ form }) => {
               <FormLabel>Estado*</FormLabel>
               <Select
                 onValueChange={field.onChange}
-                defaultValue={field.value}
+                value={field.value}
               >
                 <FormControl>
                   <SelectTrigger>

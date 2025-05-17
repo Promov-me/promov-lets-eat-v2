@@ -117,6 +117,46 @@ const PersonalInfoFields: React.FC<PersonalInfoFieldsProps> = ({ form }) => {
           );
         }}
       />
+
+      <FormField
+        control={form.control}
+        name="cep"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>CEP*</FormLabel>
+            <FormControl>
+              <MaskedInput 
+                mask="99999-999"
+                placeholder="00000-000"
+                {...field}
+                onChange={(e) => {
+                  // Remove non-digit characters before saving value
+                  const value = e.target.value.replace(/\D/g, '');
+                  field.onChange(value);
+                }}
+                onBlur={(e) => {
+                  field.onBlur();
+                  const cep = e.target.value.replace(/\D/g, '');
+                  if (cep.length === 8) {
+                    fetch(`https://viacep.com.br/ws/${cep}/json/`)
+                      .then(res => res.json())
+                      .then(data => {
+                        if (!data.erro) {
+                          form.setValue('rua', data.logradouro || '');
+                          form.setValue('bairro', data.bairro || '');
+                          form.setValue('cidade', data.localidade || '');
+                          form.setValue('uf', data.uf || '');
+                        }
+                      })
+                      .catch(error => console.error("Erro ao buscar CEP:", error));
+                  }
+                }}
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
     </>
   );
 };
