@@ -1,7 +1,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase, ConfiguracaoCampanhaType } from "@/integrations/supabase/client";
 import { AlertCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
@@ -45,7 +45,7 @@ export const useConfiguracao = () => {
           if (newConfig && newConfig.length > 0) {
             setSeriesNumericas(newConfig[0].series_numericas);
             setConfigLoaded(true);
-            return newConfig[0];
+            return newConfig[0] as ConfiguracaoCampanhaType;
           }
         }
         
@@ -53,16 +53,26 @@ export const useConfiguracao = () => {
           console.log("Configuração encontrada:", data[0]);
           setSeriesNumericas(data[0].series_numericas);
           setConfigLoaded(true);
-          return data[0];
+          return data[0] as ConfiguracaoCampanhaType;
         }
         
         // Caso de fallback, se algo der errado
         setConfigLoaded(true);
-        return { series_numericas: 1 };
+        return { 
+          id: '',
+          series_numericas: 1, 
+          created_at: null, 
+          updated_at: null 
+        } as ConfiguracaoCampanhaType;
       } catch (err) {
         console.error("Erro ao buscar configuração:", err);
         setConfigLoaded(true);
-        return { series_numericas: 1 };
+        return { 
+          id: '',
+          series_numericas: 1, 
+          created_at: null, 
+          updated_at: null 
+        } as ConfiguracaoCampanhaType;
       }
     }
   });

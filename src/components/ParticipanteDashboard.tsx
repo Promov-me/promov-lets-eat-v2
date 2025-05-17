@@ -1,28 +1,14 @@
+
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search, Ticket } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase, NumerosCadaParticipanteType } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 
-// Define an interface for the participante data with the quantidade_numeros property
-interface ParticipanteData {
-  id: string;
-  nome: string | null;
-  documento: string;
-  email: string | null;
-  telefone: string | null;
-  rua: string | null;
-  numero: string | null;
-  cidade: string | null;
-  complemento: string | null;
-  cep: string | null;
-  uf: string | null;
-  numeros_sorte: number[] | null;
-  quantidade_numeros: number | null; // This is now required since we added it to the view
-}
+interface ParticipanteData extends NumerosCadaParticipanteType {}
 
 const ParticipanteDashboard = () => {
   const [documento, setDocumento] = useState("");

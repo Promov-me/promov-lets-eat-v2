@@ -5,20 +5,10 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Toggle } from "@/components/ui/toggle";
 import { LayoutGrid, List, Search } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase, ParticipanteType, NumeroSorteType } from "@/integrations/supabase/client";
 
-type Participante = {
-  documento: string;
-  nome: string | null;
-  email: string | null;
-  telefone: string | null;
-  data_cadastro: string;
-};
-
-type NumeroSorte = {
-  numero: number;
-  created_at: string;
-};
+type Participante = ParticipanteType;
+type NumeroSorte = NumeroSorteType;
 
 const Dashboard = () => {
   const [viewMode, setViewMode] = useState<"cards" | "list">("cards");
@@ -55,16 +45,21 @@ const Dashboard = () => {
 
       if (error) throw error;
 
-      const numerosAgrupados = data.reduce((acc: Record<string, NumeroSorte[]>, curr) => {
-        if (!acc[curr.documento]) {
-          acc[curr.documento] = [];
+      const numerosAgrupados: Record<string, NumeroSorte[]> = {};
+      (data || []).forEach((curr: any) => {
+        if (!curr.documento) return;
+        
+        if (!numerosAgrupados[curr.documento]) {
+          numerosAgrupados[curr.documento] = [];
         }
-        acc[curr.documento].push({ 
+        numerosAgrupados[curr.documento].push({ 
+          id: curr.id || '',
           numero: curr.numero, 
-          created_at: curr.created_at 
+          documento: curr.documento,
+          created_at: curr.created_at,
+          obs: null
         });
-        return acc;
-      }, {});
+      });
 
       return numerosAgrupados;
     },
@@ -119,7 +114,7 @@ const Dashboard = () => {
                 <p className="text-sm text-gray-500">Email: {participante.email || "Não informado"}</p>
                 <p className="text-sm text-gray-500">Telefone: {participante.telefone || "Não informado"}</p>
                 <p className="text-sm text-gray-500">
-                  Data de Cadastro: {new Date(participante.data_cadastro).toLocaleDateString()}
+                  Data de Cadastro: {participante.data_cadastro ? new Date(participante.data_cadastro).toLocaleDateString() : "Não informado"}
                 </p>
                 
                 <div className="mt-4">
@@ -130,7 +125,7 @@ const Dashboard = () => {
                         <div key={index} className="text-sm mb-1 pb-1 border-b border-gray-100 last:border-0">
                           <span className="font-medium">{numero.numero.toString().padStart(6, '0')}</span> - 
                           <span className="text-gray-500 text-xs ml-1">
-                            {new Date(numero.created_at).toLocaleDateString()}
+                            {numero.created_at ? new Date(numero.created_at).toLocaleDateString() : "Data não informada"}
                           </span>
                         </div>
                       ))

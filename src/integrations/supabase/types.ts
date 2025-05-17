@@ -9,10 +9,141 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      configuracao_campanha: {
+        Row: {
+          created_at: string | null
+          id: string
+          series_numericas: number
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          series_numericas?: number
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          series_numericas?: number
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      numeros_sorte: {
+        Row: {
+          created_at: string | null
+          documento: string | null
+          id: string
+          numero: number
+          obs: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          documento?: string | null
+          id?: string
+          numero: number
+          obs?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          documento?: string | null
+          id?: string
+          numero?: number
+          obs?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "numeros_sorte_documento_fkey"
+            columns: ["documento"]
+            isOneToOne: false
+            referencedRelation: "numeros_cada_participante"
+            referencedColumns: ["documento"]
+          },
+          {
+            foreignKeyName: "numeros_sorte_documento_fkey"
+            columns: ["documento"]
+            isOneToOne: false
+            referencedRelation: "participantes"
+            referencedColumns: ["documento"]
+          },
+        ]
+      }
+      participantes: {
+        Row: {
+          bairro: string | null
+          cep: string | null
+          cidade: string | null
+          complemento: string | null
+          data_cadastro: string | null
+          documento: string
+          email: string | null
+          genero: string | null
+          id: string
+          nome: string | null
+          numero: string | null
+          rua: string | null
+          senha: string | null
+          telefone: string | null
+          uf: string | null
+        }
+        Insert: {
+          bairro?: string | null
+          cep?: string | null
+          cidade?: string | null
+          complemento?: string | null
+          data_cadastro?: string | null
+          documento: string
+          email?: string | null
+          genero?: string | null
+          id?: string
+          nome?: string | null
+          numero?: string | null
+          rua?: string | null
+          senha?: string | null
+          telefone?: string | null
+          uf?: string | null
+        }
+        Update: {
+          bairro?: string | null
+          cep?: string | null
+          cidade?: string | null
+          complemento?: string | null
+          data_cadastro?: string | null
+          documento?: string
+          email?: string | null
+          genero?: string | null
+          id?: string
+          nome?: string | null
+          numero?: string | null
+          rua?: string | null
+          senha?: string | null
+          telefone?: string | null
+          uf?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
-      [_ in never]: never
+      numeros_cada_participante: {
+        Row: {
+          cep: string | null
+          cidade: string | null
+          complemento: string | null
+          documento: string | null
+          email: string | null
+          id: string | null
+          nome: string | null
+          numero: string | null
+          numeros_sorte: number[] | null
+          quantidade_numeros: number | null
+          rua: string | null
+          senha: string | null
+          telefone: string | null
+          uf: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       [_ in never]: never
