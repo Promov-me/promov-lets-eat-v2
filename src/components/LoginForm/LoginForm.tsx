@@ -5,18 +5,19 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Link } from "react-router-dom";
 import { loginSchema, LoginFormValues } from "./schema";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
-import { loginParticipant } from "./LoginService";
+import { loginUser } from "./LoginService";
 import ResetPasswordForm from "./ResetPasswordForm";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useNavigate } from "react-router-dom";
 
 const LoginForm = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [tab, setTab] = useState<"login" | "reset">("login");
+  const navigate = useNavigate();
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -31,14 +32,17 @@ const LoginForm = () => {
     setErrorMessage(null);
 
     try {
-      const result = await loginParticipant(values);
-      if (!result.success) {
-        setErrorMessage(result.error || "Erro ao fazer login");
+      const result = await loginUser(values);
+      if (result) {
+        // If login successful, redirect to numeros page
+        navigate("/numeros");
+      } else {
+        // Error message is handled by toast in loginUser function
+        setIsLoading(false);
       }
     } catch (error) {
       console.error("Erro ao fazer login:", error);
       setErrorMessage("Ocorreu um erro ao processar seu login. Tente novamente.");
-    } finally {
       setIsLoading(false);
     }
   };
